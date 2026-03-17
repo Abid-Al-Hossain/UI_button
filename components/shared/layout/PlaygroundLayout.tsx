@@ -3,6 +3,43 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ScrollArea } from "@/components/shared/layout/ScrollArea";
 
+const RESIZER_WIDTH = 8;
+const MIN_RIGHT_PANEL_WIDTH = 360;
+
+function getSafeMaxLeftWidth(
+  containerWidth: number,
+  maxLeftW: number,
+  minLeftW: number,
+) {
+  return Math.max(
+    minLeftW,
+    Math.min(maxLeftW, containerWidth - RESIZER_WIDTH - MIN_RIGHT_PANEL_WIDTH),
+  );
+}
+
+function clampLeftWidth(
+  proposedWidth: number,
+  containerWidth: number,
+  minLeftW: number,
+  maxLeftW: number,
+) {
+  const safeMax = getSafeMaxLeftWidth(containerWidth, maxLeftW, minLeftW);
+  return Math.min(Math.max(proposedWidth, minLeftW), safeMax);
+}
+
+function getEqualSplitWidth(
+  containerWidth: number,
+  minLeftW: number,
+  maxLeftW: number,
+) {
+  return clampLeftWidth(
+    (containerWidth - RESIZER_WIDTH) / 2,
+    containerWidth,
+    minLeftW,
+    maxLeftW,
+  );
+}
+
 interface PlaygroundLayoutProps {
   title: string;
   headerActions?: React.ReactNode;
@@ -27,6 +64,8 @@ export function PlaygroundLayout({
   const [isResizing, setIsResizing] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(defaultLeftDataW);
   const splitRef = useRef<HTMLDivElement>(null);
+  const hasUserResizedRef = useRef(false);
+  const wasDesktopRef = useRef(false);
 
   // Responsive & Resize Logic
   useEffect(() => {
@@ -36,25 +75,65 @@ export function PlaygroundLayout({
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Ensure robust width on mode switch
+  // Entering desktop should start from an equal split.
   useEffect(() => {
-    if (isDesktop) {
-      setLeftPanelWidth((prev) => (prev >= minLeftW ? prev : defaultLeftDataW));
+    if (!isDesktop) {
+      wasDesktopRef.current = false;
+      return;
     }
-  }, [isDesktop, minLeftW, defaultLeftDataW]);
+
+    const containerWidth = splitRef.current?.getBoundingClientRect().width ?? 0;
+    if (!containerWidth) return;
+
+    const nextWidth = getEqualSplitWidth(containerWidth, minLeftW, maxLeftW);
+    const enteringDesktop = !wasDesktopRef.current;
+
+    if (enteringDesktop) {
+      hasUserResizedRef.current = false;
+      setLeftPanelWidth(nextWidth);
+      wasDesktopRef.current = true;
+      return;
+    }
+
+    setLeftPanelWidth((prev) => {
+      if (!hasUserResizedRef.current) return nextWidth;
+      return clampLeftWidth(prev, containerWidth, minLeftW, maxLeftW);
+    });
+    wasDesktopRef.current = true;
+  }, [isDesktop, minLeftW, maxLeftW]);
+
+  // Desktop resizes should only clamp user sizes, not recenter them.
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const handleWindowResize = () => {
+      const containerWidth = splitRef.current?.getBoundingClientRect().width ?? 0;
+      if (!containerWidth) return;
+
+      setLeftPanelWidth((prev) => {
+        if (!hasUserResizedRef.current) return prev;
+        return clampLeftWidth(prev, containerWidth, minLeftW, maxLeftW);
+      });
+    };
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, [isDesktop, minLeftW, maxLeftW]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing || !splitRef.current) return;
       const splitRect = splitRef.current.getBoundingClientRect();
       const newWidth = e.clientX - splitRect.left;
+      const clampedWidth = clampLeftWidth(
+        newWidth,
+        splitRect.width,
+        minLeftW,
+        maxLeftW,
+      );
 
-      const safeMax = splitRect.width - 360; // Ensure 360px for right panel
-      const actualMax = Math.min(maxLeftW, safeMax);
-
-      if (newWidth > minLeftW && newWidth < actualMax) {
-        setLeftPanelWidth(newWidth);
-      }
+      hasUserResizedRef.current = true;
+      setLeftPanelWidth(clampedWidth);
     };
 
     const handleMouseUp = () => {

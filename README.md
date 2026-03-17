@@ -11,6 +11,7 @@ This is not a small button library with a few presets.
 This is a full visual button builder with:
 
 - a sectioned editor
+- a searchable preset library with 400+ editable starting points
 - live button preview
 - state preview controls
 - code export
@@ -24,6 +25,26 @@ This is a full visual button builder with:
 - grouped preview support
 
 The current standalone product is focused on one component category only: buttons. It goes deeper on button behavior and styling than a normal demo page or static component gallery.
+
+## Preset library
+
+The standalone app includes a dedicated Presets section with `432` generated presets.
+
+These are not locked templates. Each preset applies a full editable button state built from the current generator system, so a buyer can:
+
+- browse presets by family, mood, variant, and size
+- search presets by name or tags
+- apply a preset instantly
+- continue editing from any other section after applying it
+
+The preset catalog is built from combinations of:
+
+- `12` color families
+- `6` motion and interaction moods
+- `3` button variants
+- `2` size profiles
+
+This gives users a fast starting point without breaking the custom editing workflow.
 
 ## What buyers can do with it
 

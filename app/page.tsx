@@ -16,6 +16,7 @@ import SectionSelector from "@/components/shared/layout/SectionSelector";
 
 // --- Section Imports ---
 import BasicsSection, { type ButtonVariant } from "./_section/BasicsSection";
+import PresetsSection from "./_section/PresetsSection";
 import MotionSection from "./_section/MotionSection";
 import SizingSection from "./_section/SizingSection";
 import ColorsSection from "./_section/ColorsSection";
@@ -74,6 +75,7 @@ import {
   GOOGLE_FONTS,
   ICONS_SVG,
 } from "./_data/buttonConstants";
+import { BUTTON_PRESETS, type ButtonPreset } from "./_data/buttonPresets";
 import LivePreview from "./_section/LivePreview";
 import {
   buildGradient,
@@ -2260,6 +2262,14 @@ export default function ActionButtonPage() {
     setHoverBorderInput(hexWithAlpha(contrast, 0.35));
   };
 
+  const applyButtonPreset = (preset: ButtonPreset) => {
+    updateState((current) => ({
+      ...preset.state,
+      downloadFormat: current.downloadFormat,
+      downloadName: current.downloadName,
+    }));
+  };
+
   // --- Dynamic Icon Generation ---
   const getDynamicIconSvg = (
     source: IconSource,
@@ -3136,6 +3146,16 @@ export default function ActionButtonPage() {
   };
 
   const sectionItems = [
+    {
+      id: "presets",
+      label: "Presets",
+      content: (
+        <PresetsSection
+          presets={BUTTON_PRESETS}
+          onApplyPreset={applyButtonPreset}
+        />
+      ),
+    },
     {
       id: "basics",
       label: "Basics",

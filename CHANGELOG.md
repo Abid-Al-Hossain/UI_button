@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- added a dedicated searchable preset section with `432` editable button presets
+- built the preset library from current generator features so users can apply a preset and continue tweaking from the normal editor
 - removed all load-only button animation presets from the standalone editor and exporter
 - added a dedicated `Motion` section with controllable:
   - duration
