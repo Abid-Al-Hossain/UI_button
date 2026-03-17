@@ -625,6 +625,7 @@ const buildSharedCss = (config: NormalizedConfig) => {
   const depthLiftPx = (1 + config.motionIntensity * 0.08).toFixed(2);
   const textWaveLiftPx = (1 + config.motionIntensity * 0.05).toFixed(2);
   const textGlitchPx = (0.6 + config.motionIntensity * 0.035).toFixed(2);
+  const tiltCycleDeg = Math.max(2.4, Number((Number(depthTiltDeg) * 1.15).toFixed(2)));
 
   return [
     config.fontImport ? `@import url(${JSON.stringify(config.fontImport)});` : "",
@@ -640,7 +641,7 @@ const buildSharedCss = (config: NormalizedConfig) => {
     `@keyframes uif-depth-rock{0%,100%{transform:perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0);}50%{transform:perspective(900px) rotateX(${depthTiltDeg}deg) rotateY(-${depthTiltDeg}deg) translateY(-${depthLiftPx}px);}}`,
     `@keyframes uif-depth-orbit{0%,100%{transform:perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0);}25%{transform:perspective(900px) rotateX(${(Number(depthTiltDeg) * 0.8).toFixed(2)}deg) rotateY(${depthTiltDeg}deg) translateZ(${(Number(depthLiftPx) * 0.65).toFixed(2)}px);}75%{transform:perspective(900px) rotateX(-${(Number(depthTiltDeg) * 0.8).toFixed(2)}deg) rotateY(-${depthTiltDeg}deg) translateZ(${(Number(depthLiftPx) * 0.65).toFixed(2)}px);}}`,
     `@keyframes uif-depth-gyro{0%,100%{transform:perspective(1000px) rotateX(-${(Number(depthTiltDeg) * 0.5).toFixed(2)}deg) rotateY(-${(Number(depthTiltDeg) * 0.72).toFixed(2)}deg) translateY(0);}25%{transform:perspective(1000px) rotateX(${(Number(depthTiltDeg) * 0.8).toFixed(2)}deg) rotateY(${(Number(depthTiltDeg) * 0.4).toFixed(2)}deg) translateY(-${(Number(depthLiftPx) * 0.6).toFixed(2)}px);}50%{transform:perspective(1000px) rotateX(${(Number(depthTiltDeg) * 0.24).toFixed(2)}deg) rotateY(${depthTiltDeg}deg) translateY(-${depthLiftPx}px);}75%{transform:perspective(1000px) rotateX(-${depthTiltDeg}deg) rotateY(${(Number(depthTiltDeg) * 0.2).toFixed(2)}deg) translateY(-${(Number(depthLiftPx) * 0.45).toFixed(2)}px);}}`,
-    `@keyframes uif-depth-tilt-cycle{0%,100%{transform:perspective(900px) rotateX(0deg) rotateY(-${(Number(depthTiltDeg) * 0.55).toFixed(2)}deg);}50%{transform:perspective(900px) rotateX(0deg) rotateY(${(Number(depthTiltDeg) * 0.55).toFixed(2)}deg);}}`,
+    `@keyframes uif-depth-tilt-cycle{0%,100%{transform:perspective(900px) rotateX(0deg) rotateY(-${tiltCycleDeg.toFixed(2)}deg);}50%{transform:perspective(900px) rotateX(0deg) rotateY(${tiltCycleDeg.toFixed(2)}deg);}}`,
     `@keyframes uif-text-wave{0%,100%{transform:translateY(0);}50%{transform:translateY(-${textWaveLiftPx}px);}}`,
     `@keyframes uif-text-bounce{0%,100%{transform:translateY(0) scale(1);}30%{transform:translateY(-${textWaveLiftPx}px) scale(1.04);}65%{transform:translateY(0) scale(.985);}}`,
     `@keyframes uif-text-flicker{0%,100%{opacity:1;text-shadow:inherit;}35%{opacity:.88;text-shadow:0 0 ${textWaveLiftPx}px currentColor;}50%{opacity:.96;}65%{opacity:.82;text-shadow:0 0 ${textWaveLiftPx}px currentColor;}}`,
@@ -669,7 +670,7 @@ const buildSharedCss = (config: NormalizedConfig) => {
     `.uif-label[data-text-animation='bounce'] .uif-label-char{animation:uif-text-bounce ${Math.max(1000, Math.round(motionDurationEffectiveMs * 0.78))}ms ${config.motionEasing} infinite;}`,
     `.uif-label[data-text-animation='flicker'] .uif-label-char{animation:uif-text-flicker ${Math.max(1100, Math.round(motionDurationEffectiveMs * 0.72))}ms ${config.motionEasing} infinite;}`,
     `.uif-label[data-text-animation='glitch'] .uif-label-char{animation:uif-text-glitch ${Math.max(950, Math.round(motionDurationEffectiveMs * 0.62))}ms steps(1) infinite;}`,
-    `.uif-label[data-text-animation='shimmer']{background:linear-gradient(110deg,currentColor 8%,rgba(255,255,255,.92) 24%,currentColor 42%);background-size:220% 100%;background-position:200% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:uif-text-shimmer ${Math.max(1500, Math.round(motionDurationEffectiveMs * 0.85))}ms linear infinite;}`,
+    `.uif-label[data-text-animation='shimmer']{background:linear-gradient(110deg,currentColor 8%,rgba(255,255,255,.92) 24%,currentColor 42%);background-size:220% 100%;background-position:200% 50%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:uif-text-shimmer ${Math.max(1500, Math.round(motionDurationEffectiveMs * 0.85))}ms linear infinite;}`,
     ".uif-ambient-layer{position:absolute;pointer-events:none;border-radius:inherit;z-index:0;opacity:0;}",
     ".uif-ambient-glow{inset:-16%;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.26),transparent 62%);filter:blur(18px);mix-blend-mode:screen;}",
     ".uif-ambient-sheen{inset:-28%;background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.18) 50%,transparent 64%);transform:translateX(-160%);mix-blend-mode:screen;}",
@@ -948,7 +949,7 @@ export default function ${componentName}({
   };
 
   const renderLabelContent = (text: string) => {
-    if (resolvedTextAnimation === "none") return text;
+    if (resolvedTextAnimation === "none" || resolvedTextAnimation === "shimmer") return text;
 
     return Array.from(text).map((char, index) => (
       <span
@@ -1220,7 +1221,7 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         node.innerHTML = "";
         node.setAttribute("data-text-animation", animation);
 
-        if (animation === "none") {
+        if (animation === "none" || animation === "shimmer") {
           node.textContent = text;
           return;
         }

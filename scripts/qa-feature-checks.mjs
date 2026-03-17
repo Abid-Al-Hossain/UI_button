@@ -208,10 +208,12 @@ const CASES = [
     html: ['"textAnimation":"flicker"', "uif-text-flicker"],
   },
   {
-    name: "shimmer text motion exports gradient text animation",
+    name: "shimmer text motion exports gradient text animation without forced character splitting",
     payload: { textAnimation: "shimmer" },
-    react: ['"textAnimation":"shimmer"', "uif-text-shimmer", "data-text-animation={resolvedTextAnimation}"],
-    html: ['"textAnimation":"shimmer"', "uif-text-shimmer", 'setAttribute("data-text-animation", animation)'],
+    react: ['"textAnimation":"shimmer"', "uif-text-shimmer", "-webkit-text-fill-color:transparent", "resolvedTextAnimation === \"none\" || resolvedTextAnimation === \"shimmer\""],
+    html: ['"textAnimation":"shimmer"', "uif-text-shimmer", "-webkit-text-fill-color:transparent", 'if (animation === "none" || animation === "shimmer")'],
+    reactNot: ["background-clip:text;color:transparent;"],
+    htmlNot: ["background-clip:text;color:transparent;"],
   },
   {
     name: "glitch text motion exports stepped label jitter",
@@ -240,8 +242,8 @@ const CASES = [
   {
     name: "tilt-cycle depth motion exports side-to-side shell motion",
     payload: { depthAnimation: "tilt-cycle" },
-    react: ['"depthAnimation":"tilt-cycle"', "uif-shell[data-depth-animation='tilt-cycle']", "uif-depth-tilt-cycle"],
-    html: ['"depthAnimation":"tilt-cycle"', "uif-shell[data-depth-animation='tilt-cycle']", "uif-depth-tilt-cycle"],
+    react: ['"depthAnimation":"tilt-cycle"', "uif-shell[data-depth-animation='tilt-cycle']", "uif-depth-tilt-cycle", "rotateY(-2.55deg)", "rotateY(2.55deg)"],
+    html: ['"depthAnimation":"tilt-cycle"', "uif-shell[data-depth-animation='tilt-cycle']", "uif-depth-tilt-cycle", "rotateY(-2.55deg)", "rotateY(2.55deg)"],
   },
   {
     name: "sizing and layout export width, height, padding, and alignment",

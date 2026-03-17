@@ -165,7 +165,10 @@ export default function MotionSection({
         />
 
         <div className="space-y-4">
-          <LabeledField label="3D button motion" hint="Loops the shell transform">
+          <LabeledField
+            label="3D button motion"
+            hint="Loops the shell transform separately from Button animation"
+          >
             <select
               value={state.depthAnimation}
               onChange={(e) => setKey("depthAnimation")(e.target.value)}
@@ -184,6 +187,11 @@ export default function MotionSection({
               <option value="tilt-cycle">Tilt Cycle</option>
             </select>
           </LabeledField>
+
+          <div className="text-xs leading-5" style={{ color: "var(--muted)" }}>
+            Tilt Cycle gently sways the whole shell side to side. Use Button animation for
+            surface motion and 3D button motion for shell rotation.
+          </div>
         </div>
       </div>
     </SectionCard>

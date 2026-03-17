@@ -1,5 +1,5 @@
 import { type ActionButtonState, INITIAL_STATE } from "../types";
-import { contrastHex, hexWithAlpha } from "../_utils/colorUtils";
+import { contrastRatio, hexWithAlpha } from "../_utils/colorUtils";
 
 type PresetTheme = {
   id: string;
@@ -59,6 +59,20 @@ type PresetSize = {
   shadowBlur: string;
   depth: string;
 };
+
+function pickReadableTextColor(background: string) {
+  const dark = "#111827";
+  const light = "#ffffff";
+  const darkContrast = contrastRatio(dark, background) ?? 0;
+  const lightContrast = contrastRatio(light, background) ?? 0;
+  return darkContrast >= lightContrast ? dark : light;
+}
+
+function pickReadableThemeTone(primary: string, fallback: string, background: string) {
+  const primaryContrast = contrastRatio(primary, background) ?? 0;
+  const fallbackContrast = contrastRatio(fallback, background) ?? 0;
+  return primaryContrast >= fallbackContrast ? primary : fallback;
+}
 
 export type ButtonPreset = {
   id: string;
@@ -538,7 +552,8 @@ function makeVariantState(
     ariaLabel: mood.label,
   };
 
-  const solidText = contrastHex(theme.mid);
+  const solidText = pickReadableTextColor(theme.mid);
+  const outlineTone = pickReadableThemeTone(theme.accent, theme.base, theme.canvas);
 
   if (variant === "solid") {
     state.useGradient = true;
@@ -574,9 +589,9 @@ function makeVariantState(
   } else if (variant === "outline") {
     state.useGradient = false;
     state.bgInput = "transparent";
-    state.textInput = theme.accent;
+    state.textInput = outlineTone;
     state.borderWidthText = "2";
-    state.borderInput = theme.accent;
+    state.borderInput = outlineTone;
     state.hoverBgMode = "custom";
     state.hoverBgInput = makeHoverBackground(theme, 0.14);
     state.hoverTextMode = "same";
@@ -589,29 +604,29 @@ function makeVariantState(
     state.activeScaleText = "0.99";
     state.disabledUseCustomColors = true;
     state.disabledBgInput = "transparent";
-    state.disabledTextInput = hexWithAlpha(theme.accent, 0.55);
-    state.disabledBorderInput = hexWithAlpha(theme.accent, 0.35);
+    state.disabledTextInput = hexWithAlpha(outlineTone, 0.55);
+    state.disabledBorderInput = hexWithAlpha(outlineTone, 0.35);
   } else {
     state.useGradient = false;
     state.bgInput = "transparent";
-    state.textInput = theme.accent;
+    state.textInput = outlineTone;
     state.borderWidthText = "0";
     state.borderInput = "transparent";
     state.hoverBgMode = "custom";
     state.hoverBgInput = makeHoverBackground(theme, 0.12);
     state.hoverTextMode = "same";
     state.hoverBorderMode = "custom";
-    state.hoverBorderInput = hexWithAlpha(theme.accent, 0.3);
+    state.hoverBorderInput = hexWithAlpha(outlineTone, 0.3);
     state.activeBgMode = "custom";
     state.activeBgInput = makeHoverBackground(theme, 0.22);
     state.activeTextMode = "same";
     state.activeBorderMode = "custom";
-    state.activeBorderInput = hexWithAlpha(theme.accent, 0.38);
+    state.activeBorderInput = hexWithAlpha(outlineTone, 0.38);
     state.activeTranslateYText = "1";
     state.activeScaleText = "0.99";
     state.disabledUseCustomColors = true;
     state.disabledBgInput = "transparent";
-    state.disabledTextInput = hexWithAlpha(theme.accent, 0.48);
+    state.disabledTextInput = hexWithAlpha(outlineTone, 0.48);
     state.disabledBorderInput = "transparent";
   }
 
@@ -635,7 +650,7 @@ function makePreview(
   if (state.variant === "outline") {
     return {
       canvas: theme.canvas,
-      background: hexWithAlpha(theme.accent, 0.08),
+      background: "transparent",
       text: state.textInput,
       border: state.borderInput,
       shadow: `0 8px 18px ${hexWithAlpha(theme.shadow, 0.08)}`,
@@ -644,9 +659,9 @@ function makePreview(
 
   return {
     canvas: theme.canvas,
-    background: hexWithAlpha(theme.accent, 0.12),
+    background: "transparent",
     text: state.textInput,
-    border: hexWithAlpha(theme.accent, 0.22),
+    border: "transparent",
     shadow: `0 8px 18px ${hexWithAlpha(theme.shadow, 0.06)}`,
   };
 }

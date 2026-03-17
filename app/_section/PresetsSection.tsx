@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { type ButtonPreset, BUTTON_PRESET_COUNT } from "../_data/buttonPresets";
+import PresetButtonPreview from "./PresetButtonPreview";
 import { LabeledField, SectionCard, Segmented } from "./ui";
 
 const PAGE_SIZE = 24;
@@ -28,12 +30,28 @@ export default function PresetsSection({
   presets: ButtonPreset[];
   onApplyPreset: (preset: ButtonPreset) => void;
 }) {
+  const pageVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? "100%" : direction < 0 ? "-100%" : 0,
+      opacity: direction === 0 ? 0 : 1,
+    }),
+    center: {
+      opacity: 1,
+      x: 0,
+    },
+    exit: (direction: number) => ({
+      x: direction > 0 ? "-100%" : direction < 0 ? "100%" : 0,
+      opacity: direction === 0 ? 0 : 1,
+    }),
+  };
+
   const [query, setQuery] = useState("");
   const [variantFilter, setVariantFilter] = useState("all");
   const [familyFilter, setFamilyFilter] = useState("all");
   const [moodFilter, setMoodFilter] = useState("all");
   const [sizeFilter, setSizeFilter] = useState("all");
   const [page, setPage] = useState(0);
+  const [pageDirection, setPageDirection] = useState(0);
 
   const families = Array.from(new Set(presets.map((preset) => preset.family)));
   const moods = Array.from(new Set(presets.map((preset) => preset.mood)));
@@ -50,12 +68,22 @@ export default function PresetsSection({
     const haystack = [preset.name, preset.summary, ...preset.tags].join(" ").toLowerCase();
     return haystack.includes(search);
   });
+  const resultLabel = `${filtered.length} ${filtered.length === 1 ? "match" : "matches"}`;
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+  const pageKey = [
+    safePage,
+    query.trim().toLowerCase(),
+    variantFilter,
+    familyFilter,
+    moodFilter,
+    sizeFilter,
+  ].join(":");
 
   const resetFilters = () => {
+    setPageDirection(0);
     setQuery("");
     setVariantFilter("all");
     setFamilyFilter("all");
@@ -70,6 +98,12 @@ export default function PresetsSection({
     onApplyPreset(next);
   };
 
+  const goToPage = (targetPage: number) => {
+    if (targetPage === safePage) return;
+    setPageDirection(targetPage > safePage ? 1 : -1);
+    setPage(targetPage);
+  };
+
   return (
     <SectionCard
       title="Presets"
@@ -77,10 +111,11 @@ export default function PresetsSection({
     >
       <div className="space-y-4">
         <div className="grid gap-3 md:grid-cols-2">
-          <LabeledField label="Search presets" hint={`${filtered.length} match`}>
+          <LabeledField label="Search presets" hint={resultLabel}>
             <input
               value={query}
               onChange={(event) => {
+                setPageDirection(0);
                 setQuery(event.target.value);
                 setPage(0);
               }}
@@ -98,6 +133,7 @@ export default function PresetsSection({
             <Segmented
               value={variantFilter}
               onChange={(value) => {
+                setPageDirection(0);
                 setVariantFilter(value);
                 setPage(0);
               }}
@@ -116,6 +152,7 @@ export default function PresetsSection({
             <select
               value={familyFilter}
               onChange={(event) => {
+                setPageDirection(0);
                 setFamilyFilter(event.target.value);
                 setPage(0);
               }}
@@ -139,6 +176,7 @@ export default function PresetsSection({
             <select
               value={moodFilter}
               onChange={(event) => {
+                setPageDirection(0);
                 setMoodFilter(event.target.value);
                 setPage(0);
               }}
@@ -162,6 +200,7 @@ export default function PresetsSection({
             <select
               value={sizeFilter}
               onChange={(event) => {
+                setPageDirection(0);
                 setSizeFilter(event.target.value);
                 setPage(0);
               }}
@@ -199,6 +238,7 @@ export default function PresetsSection({
           <button
             type="button"
             onClick={applyRandomPreset}
+            disabled={!filtered.length}
             className="rounded-xl border px-3 py-2 text-sm font-semibold uf-clickable"
             style={{
               borderColor: "color-mix(in oklab, var(--primary) 55%, var(--border))",
@@ -214,78 +254,110 @@ export default function PresetsSection({
           </div>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-2">
-          {visible.map((preset) => (
-            <div
-              key={preset.id}
-              className="rounded-2xl border p-3"
-              style={{
-                borderColor: "var(--border)",
-                background: "color-mix(in oklab, var(--card) 68%, transparent)",
+        <div className="relative overflow-hidden">
+          <AnimatePresence mode="wait" initial={false} custom={pageDirection}>
+            <motion.div
+              key={pageKey}
+              custom={pageDirection}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: {
+                  type: "spring",
+                  stiffness: 320,
+                  damping: 34,
+                  mass: 0.9,
+                },
+                opacity: {
+                  duration: 0.14,
+                  ease: "linear",
+                },
               }}
+              className="grid gap-3 lg:grid-cols-2"
+              style={{ willChange: "transform, opacity" }}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <div className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    {preset.name}
-                  </div>
-                  <div className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
-                    {preset.summary}
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => onApplyPreset(preset)}
-                  className="rounded-xl px-3 py-2 text-xs font-semibold uf-clickable"
-                  style={{
-                    background: "var(--primary)",
-                    color: "#ffffff",
-                  }}
-                >
-                  Apply
-                </button>
-              </div>
-
-              <div
-                className="mt-3 rounded-2xl border p-4"
-                style={{
-                  borderColor: "color-mix(in oklab, var(--border) 80%, transparent)",
-                  background: preset.preview.canvas,
-                }}
-              >
+              {visible.length === 0 ? (
                 <div
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold"
+                  className="rounded-2xl border p-6 text-sm lg:col-span-2"
                   style={{
-                    minWidth: preset.size === "Hero" ? "176px" : "144px",
-                    background: preset.preview.background,
-                    color: preset.preview.text,
-                    borderColor: preset.preview.border,
-                    boxShadow: preset.preview.shadow,
+                    borderColor: "var(--border)",
+                    background: "color-mix(in oklab, var(--card) 68%, transparent)",
+                    color: "var(--muted)",
                   }}
                 >
-                  {preset.state.iconName !== "none" ? (
-                    <span style={{ opacity: 0.9 }}>+</span>
-                  ) : null}
-                  <span>{preset.state.label}</span>
+                  No presets match the current filters. Adjust or reset the filters to continue.
                 </div>
-              </div>
+              ) : visible.map((preset, index) => (
+                <motion.div
+                  key={preset.id}
+                  initial={{
+                    opacity: 0,
+                    x: pageDirection > 0 ? 24 : pageDirection < 0 ? -24 : 0,
+                    y: 0,
+                  }}
+                  animate={{ opacity: 1, x: 0, y: 0 }}
+                  transition={{
+                    x: {
+                      type: "spring",
+                      stiffness: 340,
+                      damping: 32,
+                      mass: 0.9,
+                    },
+                    opacity: {
+                      duration: 0.18,
+                      delay: Math.min(index, 7) * 0.015,
+                      ease: "linear",
+                    },
+                  }}
+                  className="rounded-2xl border p-3"
+                  style={{
+                    borderColor: "var(--border)",
+                    background: "color-mix(in oklab, var(--card) 68%, transparent)",
+                  }}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                        {preset.name}
+                      </div>
+                      <div className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
+                        {preset.summary}
+                      </div>
+                    </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Badge label={preset.family} />
-                <Badge label={preset.mood} />
-                <Badge label={preset.variant} />
-                <Badge label={preset.size} />
-                {preset.state.animation !== "none" ? <Badge label={preset.state.animation} /> : null}
-                {preset.state.textAnimation !== "none" ? (
-                  <Badge label={preset.state.textAnimation} />
-                ) : null}
-                {preset.state.depthAnimation !== "none" ? (
-                  <Badge label={preset.state.depthAnimation} />
-                ) : null}
-              </div>
-            </div>
-          ))}
+                    <button
+                      type="button"
+                      onClick={() => onApplyPreset(preset)}
+                      className="rounded-xl px-3 py-2 text-xs font-semibold uf-clickable"
+                      style={{
+                        background: "var(--primary)",
+                        color: "#ffffff",
+                      }}
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  <PresetButtonPreview preset={preset} />
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge label={preset.family} />
+                    <Badge label={preset.mood} />
+                    <Badge label={preset.variant} />
+                    <Badge label={preset.size} />
+                    {preset.state.animation !== "none" ? <Badge label={preset.state.animation} /> : null}
+                    {preset.state.textAnimation !== "none" ? (
+                      <Badge label={preset.state.textAnimation} />
+                    ) : null}
+                    {preset.state.depthAnimation !== "none" ? (
+                      <Badge label={preset.state.depthAnimation} />
+                    ) : null}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -297,7 +369,7 @@ export default function PresetsSection({
             <button
               type="button"
               disabled={safePage === 0}
-              onClick={() => setPage((current) => Math.max(0, current - 1))}
+              onClick={() => goToPage(Math.max(0, safePage - 1))}
               className="rounded-xl border px-3 py-2 text-sm font-semibold uf-clickable disabled:opacity-50"
               style={{
                 borderColor: "var(--border)",
@@ -311,7 +383,7 @@ export default function PresetsSection({
             <button
               type="button"
               disabled={safePage >= pageCount - 1}
-              onClick={() => setPage((current) => Math.min(pageCount - 1, current + 1))}
+              onClick={() => goToPage(Math.min(pageCount - 1, safePage + 1))}
               className="rounded-xl border px-3 py-2 text-sm font-semibold uf-clickable disabled:opacity-50"
               style={{
                 borderColor: "var(--border)",

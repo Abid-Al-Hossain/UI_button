@@ -6,9 +6,8 @@ import React, {
   useState,
   useMemo,
 } from "react";
-import ReactDOMServer from "react-dom/server";
 import dynamic from "next/dynamic";
-import * as LucideIcons from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import AppShell from "@/components/shared/layout/AppShell";
 import useHydrated from "@/components/hooks/useHydrated";
 import UndoRedoButtons from "@/components/shared/layout/UndoRedoButtons";
@@ -71,10 +70,10 @@ import {
   PALETTE,
   SYSTEM_FONTS,
   GOOGLE_FONTS,
-  ICONS_SVG,
 } from "./_data/buttonConstants";
 import { BUTTON_PRESETS, type ButtonPreset } from "./_data/buttonPresets";
 import LivePreview from "./_section/LivePreview";
+import { resolveIconSvg } from "./_utils/iconMarkup";
 import {
   buildGradient,
   clamp,
@@ -94,8 +93,28 @@ import {
 } from "./types";
 
 export default function ActionButtonPage() {
+  const sectionVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 72 : direction < 0 ? -72 : 0,
+      opacity: direction === 0 ? 0 : 0,
+      position: "relative" as const,
+    }),
+    center: {
+      opacity: 1,
+      x: 0,
+      position: "relative" as const,
+    },
+    exit: (direction: number) => ({
+      x: direction > 0 ? -72 : direction < 0 ? 72 : 0,
+      opacity: direction === 0 ? 0 : 0,
+      position: "relative" as const,
+    }),
+  };
+
   const mounted = useHydrated();
   const [activeSection, setActiveSection] = useState("basics");
+  const [sectionTransitionDir, setSectionTransitionDir] = useState(0);
+  const [previewResetKey, setPreviewResetKey] = useState(0);
   // Initialize unified history state
   const {
     state,
@@ -2245,6 +2264,7 @@ export default function ActionButtonPage() {
     setHoverBgInput(hexWithAlpha(contrast, 0.12));
     setHoverTextMode("same");
     setHoverBorderMode("same");
+    setPreviewResetKey((current) => current + 1);
   };
 
   const applyGhostPreset = () => {
@@ -2258,6 +2278,7 @@ export default function ActionButtonPage() {
     setHoverTextMode("same");
     setHoverBorderMode("custom");
     setHoverBorderInput(hexWithAlpha(contrast, 0.35));
+    setPreviewResetKey((current) => current + 1);
   };
 
   const applyButtonPreset = (preset: ButtonPreset) => {
@@ -2266,48 +2287,22 @@ export default function ActionButtonPage() {
       downloadFormat: current.downloadFormat,
       downloadName: current.downloadName,
     }));
+    setPreviewResetKey((current) => current + 1);
   };
 
   // --- Dynamic Icon Generation ---
-  const getDynamicIconSvg = (
-    source: IconSource,
-    name: string,
-    custom: string,
-  ) => {
-    if (source === "custom") return custom;
-    if (!name || name === "none") return "";
-
-    // Check legacy map first (optional, but good for stability)
-    if (ICONS_SVG[name]) return ICONS_SVG[name];
-
-    // Dynamic Lookup
-    // @ts-ignore - Dynamic access to Lucide icons
-    const IconComp = (LucideIcons as any)[name];
-    if (IconComp) {
-      try {
-        // Render simple version without extra classes, size handled by CSS/Container
-        return ReactDOMServer.renderToStaticMarkup(
-          <IconComp strokeWidth={2} />,
-        );
-      } catch (e) {
-        console.warn("Failed to render icon:", name, e);
-      }
-    }
-    return "";
-  };
-
-  const baseIconSvg = getDynamicIconSvg(iconSource, iconName, iconCustomSvg);
+  const baseIconSvg = resolveIconSvg(iconSource, iconName, iconCustomSvg);
 
   const hoverIconSvg = hoverIconEnabled
-    ? getDynamicIconSvg(hoverIconSource, hoverIconName, hoverIconCustomSvg)
+    ? resolveIconSvg(hoverIconSource, hoverIconName, hoverIconCustomSvg)
     : "";
 
   const activeIconSvg = activeIconEnabled
-    ? getDynamicIconSvg(activeIconSource, activeIconName, activeIconCustomSvg)
+    ? resolveIconSvg(activeIconSource, activeIconName, activeIconCustomSvg)
     : "";
 
   const loadingIconSvg = loadingIconEnabled
-    ? getDynamicIconSvg(
+    ? resolveIconSvg(
         loadingIconSource,
         loadingIconName,
         loadingIconCustomSvg,
@@ -2777,6 +2772,7 @@ export default function ActionButtonPage() {
       forceHover,
       forceActive,
       forceFocus,
+      previewResetKey,
       transitionColorMs,
       transitionColorEasing,
       transitionTransformMs,
@@ -2905,6 +2901,7 @@ export default function ActionButtonPage() {
       forceHover,
       forceActive,
       forceFocus,
+      previewResetKey,
       transitionColorMs,
       transitionColorEasing,
       transitionTransformMs,
@@ -3367,6 +3364,21 @@ export default function ActionButtonPage() {
 
   const activePanel =
     sectionItems.find((item) => item.id === activeSection) ?? sectionItems[0];
+  const sectionOrder = sectionItems.map((item) => item.id);
+
+  const handleSectionChange = (nextSection: string) => {
+    if (nextSection === activeSection) return;
+    const currentIndex = sectionOrder.indexOf(activeSection);
+    const nextIndex = sectionOrder.indexOf(nextSection);
+    setSectionTransitionDir(
+      currentIndex === -1 || nextIndex === -1
+        ? 0
+        : nextIndex > currentIndex
+          ? 1
+          : -1,
+    );
+    setActiveSection(nextSection);
+  };
 
   // --- Live Preview Node construction ---
   const showLivePreview =
@@ -3395,7 +3407,10 @@ export default function ActionButtonPage() {
     <UndoRedoButtons
       undo={undo}
       redo={redo}
-      reset={reset}
+      reset={() => {
+        reset();
+        setPreviewResetKey((current) => current + 1);
+      }}
       canUndo={canUndo}
       canRedo={canRedo}
     />
@@ -3407,10 +3422,36 @@ export default function ActionButtonPage() {
       <SectionSelector
         sections={sectionItems}
         activeSection={activeSection}
-        onSectionChange={setActiveSection}
+        onSectionChange={handleSectionChange}
       />
 
-      {activePanel?.content}
+      <div className="relative overflow-hidden">
+        <AnimatePresence mode="wait" initial={false} custom={sectionTransitionDir}>
+          <motion.div
+            key={activePanel?.id ?? activeSection}
+            custom={sectionTransitionDir}
+            variants={sectionVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: {
+                type: "spring",
+                stiffness: 360,
+                damping: 34,
+                mass: 0.9,
+              },
+              opacity: {
+                duration: 0.12,
+                ease: "linear",
+              },
+            }}
+            style={{ willChange: "transform, opacity" }}
+          >
+            {activePanel?.content}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </>
   );
 

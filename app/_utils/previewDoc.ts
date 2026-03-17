@@ -368,6 +368,7 @@ export const PREVIEW_SRC_DOC = `<!doctype html>
   }
 
   let lastGroupEnabled = false;
+  let lastPreviewResetKey = -1;
 
   window.addEventListener('message', (e) => {
     const d = e.data;
@@ -386,6 +387,18 @@ export const PREVIEW_SRC_DOC = `<!doctype html>
 
     const loadingLabel = d.loadingLabel || "Loading...";
     lastGroupEnabled = Boolean(d.groupEnabled);
+    if (d.previewResetKey !== lastPreviewResetKey) {
+      lastPreviewResetKey = d.previewResetKey;
+      buttons.forEach((btn) => {
+        btn.dataset.hover = 'false';
+        btn.dataset.active = 'false';
+        btn.classList.remove('force-focus-ring');
+        btn.style.setProperty('--btn-light-x', '0px');
+        btn.style.setProperty('--btn-light-y', '0px');
+        btn.style.setProperty('--btn-parallax-opacity', '0');
+        btn.blur();
+      });
+    }
     if (singleWrap) {
       singleWrap.classList.toggle('is-hidden', lastGroupEnabled);
       singleWrap.setAttribute('aria-hidden', String(lastGroupEnabled));
