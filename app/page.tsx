@@ -39,9 +39,7 @@ import GroupPreviewSection, {
 import HoverSection from "./_section/HoverSection";
 import ActiveStateSection from "./_section/ActiveStateSection";
 import FocusRingSection from "./_section/FocusRingSection";
-import PreviewBackgroundSection, {
-  type PreviewBgMode,
-} from "./_section/PreviewBackgroundSection";
+import { type PreviewBgMode } from "./_section/PreviewBackgroundSection";
 import PreviewDownloadPanel, {
   type DownloadFormat,
 } from "@/components/shared/layout/SharedPreviewDownloadPanel";
@@ -3434,6 +3432,10 @@ export default function ActionButtonPage() {
       handleDownload={handleDownload}
       previewNode={livePreviewNode}
       code={exportCode.content}
+      previewBgMode={previewBgMode}
+      setPreviewBgMode={setPreviewBgMode}
+      previewBgInput={previewBgInput}
+      setPreviewBgInput={setPreviewBgInput}
     />
   );
 

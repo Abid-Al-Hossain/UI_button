@@ -1,22 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { Palette, Check, Monitor, Moon, Sun } from "lucide-react";
+import { Palette, Monitor, Moon, Sun } from "lucide-react";
 import ColorControl from "../color/ColorControl";
 
-type BgMode = "light" | "dark" | "custom";
+export type PreviewCanvasMode = "white" | "black" | "custom";
 
-export function PreviewPanel({ children }: { children: React.ReactNode }) {
-  const [bgMode, setBgMode] = useState<BgMode>("light");
-  const [customColor, setCustomColor] = useState("#ffffff"); // Default white
+export function PreviewPanel({
+  children,
+  bgMode: controlledBgMode,
+  setBgMode: setControlledBgMode,
+  customColor: controlledCustomColor,
+  setCustomColor: setControlledCustomColor,
+}: {
+  children: React.ReactNode;
+  bgMode?: PreviewCanvasMode;
+  setBgMode?: (v: PreviewCanvasMode) => void;
+  customColor?: string;
+  setCustomColor?: (v: string) => void;
+}) {
+  const [localBgMode, setLocalBgMode] = useState<PreviewCanvasMode>("white");
+  const [localCustomColor, setLocalCustomColor] = useState("#ffffff");
   const [isOpen, setIsOpen] = useState(false);
+
+  const bgMode = controlledBgMode ?? localBgMode;
+  const customColor = controlledCustomColor ?? localCustomColor;
+  const setBgMode = setControlledBgMode ?? setLocalBgMode;
+  const setCustomColor = setControlledCustomColor ?? setLocalCustomColor;
 
   // Determine actual background style
   const backgroundStyle = (() => {
     switch (bgMode) {
-      case "light":
+      case "white":
         return "#ffffff";
-      case "dark":
+      case "black":
         return "#000000";
       case "custom":
         return customColor;
@@ -61,9 +78,9 @@ export function PreviewPanel({ children }: { children: React.ReactNode }) {
             {/* Toggles */}
             <div className="grid grid-cols-3 gap-1 mb-3">
               <button
-                onClick={() => setBgMode("light")}
+                onClick={() => setBgMode("white")}
                 className={`flex flex-col items-center justify-center rounded-lg py-2 text-xs font-medium transition-colors ${
-                  bgMode === "light"
+                  bgMode === "white"
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                     : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
                 }`}
@@ -73,9 +90,9 @@ export function PreviewPanel({ children }: { children: React.ReactNode }) {
                 Light
               </button>
               <button
-                onClick={() => setBgMode("dark")}
+                onClick={() => setBgMode("black")}
                 className={`flex flex-col items-center justify-center rounded-lg py-2 text-xs font-medium transition-colors ${
-                  bgMode === "dark"
+                  bgMode === "black"
                     ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                     : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
                 }`}

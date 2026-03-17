@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { PreviewPanel } from "@/components/shared/layout/PreviewPanel";
+import {
+  PreviewPanel,
+  type PreviewCanvasMode,
+} from "@/components/shared/layout/PreviewPanel";
 import ExportOptionsControl from "@/components/shared/export/ExportOptionsControl";
 import { ScrollArea } from "./ScrollArea";
 import CodeBlock from "./CodeBlock";
@@ -29,6 +32,11 @@ export default function PreviewDownloadPanel(props: {
 
   // New prop for code view
   code?: string;
+
+  previewBgMode?: PreviewCanvasMode;
+  setPreviewBgMode?: (v: PreviewCanvasMode) => void;
+  previewBgInput?: string;
+  setPreviewBgInput?: (v: string) => void;
 }) {
   const {
     mounted,
@@ -42,6 +50,10 @@ export default function PreviewDownloadPanel(props: {
     handleDownload,
     previewNode,
     code,
+    previewBgMode,
+    setPreviewBgMode,
+    previewBgInput,
+    setPreviewBgInput,
   } = props;
 
   const [viewMode, setViewMode] = useState<"preview" | "code">("preview");
@@ -100,7 +112,12 @@ export default function PreviewDownloadPanel(props: {
                   transition={{ duration: 0.25, type: "spring", bounce: 0 }}
                   className="h-full w-full"
                 >
-                  <PreviewPanel>
+                  <PreviewPanel
+                    bgMode={previewBgMode}
+                    setBgMode={setPreviewBgMode}
+                    customColor={previewBgInput}
+                    setCustomColor={setPreviewBgInput}
+                  >
                     {previewNode ? (
                       <div className="h-full w-full flex items-center justify-center">
                         {previewNode}
