@@ -15,6 +15,9 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
   return (
     <div
       className="mt-3 rounded-2xl border p-4"
+      data-audit="preset-preview-root"
+      data-preset-id={preset.id}
+      data-testid={`preset-preview-${preset.id}`}
       style={{
         borderColor: "color-mix(in oklab, var(--border) 80%, transparent)",
         background: model.canvas,
@@ -22,8 +25,11 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
     >
       <div
         className="relative inline-flex items-center justify-center overflow-hidden rounded-2xl border text-sm font-semibold"
+        data-audit="preset-preview-button"
+        data-preset-id={preset.id}
+        data-testid={`preset-preview-button-${preset.id}`}
         style={{
-          width: model.isHero ? "100%" : `min(100%, ${model.width})`,
+          width: `min(100%, ${model.width})`,
           minHeight: model.minHeight,
           padding: model.padding,
           background: model.background,
@@ -46,11 +52,15 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
           <span
             aria-hidden="true"
             className="absolute inset-0 pointer-events-none"
+            data-audit="preset-preview-top-gradient"
+            data-preset-id={preset.id}
             style={{ background: model.topGradient, mixBlendMode: "overlay" }}
           />
         ) : null}
         <span
           className="relative z-[1] inline-flex items-center justify-center"
+          data-audit="preset-preview-content"
+          data-preset-id={preset.id}
           style={{
             gap: baseIconSvg ? model.iconGap : "0px",
             flexDirection: preset.state.iconPosition === "right" ? "row-reverse" : "row",
@@ -60,6 +70,9 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
             <span
               aria-hidden="true"
               className="inline-flex items-center justify-center [&>svg]:block [&>svg]:h-full [&>svg]:w-full"
+              data-audit="preset-preview-icon"
+              data-preset-id={preset.id}
+              data-testid={`preset-preview-icon-${preset.id}`}
               style={{
                 width: model.iconSize,
                 height: model.iconSize,
@@ -69,7 +82,13 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
               dangerouslySetInnerHTML={{ __html: baseIconSvg }}
             />
           ) : null}
-          <span>{preset.state.label}</span>
+          <span
+            data-audit="preset-preview-label"
+            data-preset-id={preset.id}
+            data-testid={`preset-preview-label-${preset.id}`}
+          >
+            {preset.state.label}
+          </span>
         </span>
       </div>
     </div>

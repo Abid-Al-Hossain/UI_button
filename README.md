@@ -1,96 +1,89 @@
 # UI Foundry Button Component Generator
 
-Standalone button component generator built with Next.js.
+Standalone visual button generator built with Next.js.
 
-This product is meant to be sold as an individual UI generator before the larger UI Foundry SaaS platform is finalized. The goal of this standalone package is simple: let a buyer design a button visually, preview it immediately, and export matching React or HTML code without manually rebuilding the component by hand.
+This project is a sellable single-component product focused entirely on buttons. Instead of shipping a small fixed button library, it gives the buyer a visual editor for building button styles, previewing states and motion, browsing a large preset catalog, and exporting production-friendly React / JSX code.
 
-## What this product is
+## Product summary
 
-This is not a small button library with a few presets.
+This generator is designed for:
 
-This is a full visual button builder with:
+- designers who want to explore button directions quickly
+- developers who want editable starting points instead of rebuilding button logic from scratch
+- freelancers and agencies who need fast button prototyping for client work
+- sellers who want a polished standalone UI tool before a larger component SaaS is launched
 
-- a sectioned editor
-- a searchable preset library with 400+ editable starting points
-- live button preview
+The workflow is simple:
+
+1. choose a preset or start from the current button state
+2. edit the button through sectioned controls
+3. inspect the preview in real time
+4. switch to the code view
+5. copy or export the final React / JSX component
+
+## What the product includes
+
+The app includes:
+
+- a section-based editing panel
+- a live preview panel
+- code view with copy support
+- file export support
+- a searchable preset library
 - state preview controls
-- code export
-- file download export
-- React/JSX output
-- HTML output
 - motion controls
 - hover and click effects
-- icon-state switching
+- icon overrides by state
 - accessibility controls
-- grouped preview support
+- grouped button preview support
 
-The current standalone product is focused on one component category only: buttons. It goes deeper on button behavior and styling than a normal demo page or static component gallery.
+This is a deep button generator, not just a demo page with a few color pickers.
 
-## Preset library
+## Preset system
 
-The standalone app includes a dedicated Presets section with `432` generated presets.
+The Presets section includes `432` editable presets.
 
-These are not locked templates. Each preset applies a full editable button state built from the current generator system, so a buyer can:
-
-- browse presets by family, mood, variant, and size
-- search presets by name or tags
-- apply a preset instantly
-- continue editing from any other section after applying it
-
-The preset catalog is built from combinations of:
+These presets are generated from combinations of:
 
 - `12` color families
-- `6` motion and interaction moods
-- `3` button variants
+- `6` moods
+- `3` variants
 - `2` size profiles
 
-This gives users a fast starting point without breaking the custom editing workflow.
+Presets are not locked templates. Applying one loads a full editable button state, and the user can continue changing any setting from any section afterward.
 
-## What buyers can do with it
+The preset browser supports:
 
-A buyer can use this generator to:
+- search by name, family, mood, and tag
+- family filtering
+- mood filtering
+- variant filtering
+- size filtering
+- paginated browsing
+- one-click apply
 
-- create marketing buttons
-- create dashboard buttons
-- create hero CTA buttons
-- create loading buttons
-- create icon buttons
-- create ghost and outline buttons
-- create animated CTA buttons
-- generate quick prototype buttons for client work
-- inspect how design changes affect exported code
-- export the final component as React or HTML
+This makes the product useful both for quick inspiration and for serious customization.
 
-## Core product flow
+## Full feature coverage
 
-The intended workflow is:
+### Basics
 
-1. edit the button through the left-side control sections
-2. inspect the preview on the right
-3. switch to the code tab if needed
-4. copy or export the generated code
-5. use the exported component in another project
+The Basics section controls the main identity of the button:
 
-The product is designed so the preview, copied code, and downloaded code stay behaviorally aligned for the supported button feature set.
-
-## Full feature overview
-
-### 1. Basics
-
-The Basics section controls the main button identity:
-
-- button label
+- label
 - solid, outline, and ghost variants
-- disabled toggle
-- loading toggle
+- disabled state
+- loading state
 
-This lets a user establish the main component state before moving into styling or effects.
+### Motion
 
-### 2. Motion
+The Motion section gives separate control over three motion layers:
 
-The Motion section is the dedicated animation control panel. It does not include load-only entrance animation. Motion is intentionally configurable rather than fixed.
+- button surface motion
+- text motion
+- 3D shell motion
 
-Global motion controls:
+Global motion controls include:
 
 - duration
 - speed
@@ -98,7 +91,7 @@ Global motion controls:
 - easing
 - text stagger
 
-Button motion presets:
+Button animation presets:
 
 - `none`
 - `breathe`
@@ -118,7 +111,7 @@ Text motion presets:
 - `shimmer`
 - `glitch`
 
-3D shell motion presets:
+3D button motion presets:
 
 - `none`
 - `rock`
@@ -126,104 +119,98 @@ Text motion presets:
 - `gyro`
 - `tilt-cycle`
 
-This means buyers are not limited to a fixed animation look. They can tune the feel of the motion system directly from the editor.
+This makes the generator useful for calm UI buttons, glossy premium buttons, animated marketing buttons, and more expressive CTA styles.
 
-### 3. Sizing
+### Sizing
 
-The Sizing section covers layout dimensions:
+Sizing controls include:
 
 - width
 - height
 - horizontal padding
 - vertical padding
 
-This makes the generator usable for compact interface buttons, larger CTA buttons, or wide action buttons.
+These controls allow compact interface buttons, medium action buttons, or larger hero CTA buttons.
 
-### 4. Colors
+### Colors
 
-The Colors section supports:
+Color controls include:
 
-- solid background color
-- gradient background mode
-- start and end gradient colors
-- optional gradient midpoint
+- solid background
+- gradient mode
+- gradient start
+- optional midpoint
+- gradient end
 - text color
 
-This allows both simple flat buttons and more designed CTA-style surfaces.
+### Outline / Ghost styling
 
-### 5. Outline / Ghost presets
+The product supports solid, outline, and ghost directions as real editable states, not fake visual presets only. That means users can move between style directions while keeping access to the full editor.
 
-The generator includes outline and ghost preset application logic so buyers can quickly switch to a different button style direction without manually rebuilding every color field.
+### Border
 
-### 6. Border
-
-The Border section includes:
+Border controls include:
 
 - border width
 - border style
 - border color
-- separate hover border width
-- separate active border width
+- hover border width
+- active border width
 
-This makes it possible to create quiet flat borders or stronger interactive border transitions.
+### Radius
 
-### 7. Radius
-
-The Radius section supports:
+Radius controls include:
 
 - linked corner radius
-- independent top-left radius
-- independent top-right radius
-- independent bottom-right radius
-- independent bottom-left radius
+- top-left radius
+- top-right radius
+- bottom-right radius
+- bottom-left radius
 
-This means users can build standard rounded buttons or more custom asymmetrical shapes.
+This supports standard rounded buttons and asymmetrical custom shapes.
 
-### 8. Shadow
+### Shadow and depth styling
 
-The Shadow section is not limited to a single box-shadow text field. It gives buyers structured control over shadow behavior and related depth styling.
-
-Shadow and depth-related controls include:
+The shadow system goes beyond one generic box-shadow field. It supports richer depth presentation, including:
 
 - main shadow offsets
 - blur
 - spread
 - opacity
 - shadow temperature
-- elevation preset
-- shadow stack layers
-- inner shadow toggle
-- gloss toggle
-- bevel controls
-- material preset
-- edge / depth appearance controls
-- rim light controls
+- elevation presets
+- layered stack depth
+- inner shadow
+- gloss
+- bevel treatment
+- material-style depth behavior
+- rim light
 - pressed depth behavior
 
-This gives the product enough range for flat UI, lifted interface buttons, and more polished presentation buttons.
+This allows both flatter utility buttons and more polished premium-looking buttons.
 
-### 9. Typography
+### Typography
 
 Typography controls include:
 
-- system font selection
-- Google font support
+- system fonts
+- Google fonts
 - font size
-- unit selection
+- size unit
 - font weight
 - letter spacing
 - line height
 - italic / normal style
 - text transform
-- underline toggle
+- underline
 
-This makes the generator useful not just for shape and color, but for real brand presentation.
+Typography is a core part of the product, not an afterthought.
 
-### 10. Effects (New)
+### Effects
 
-The Effects section contains richer interaction and motion-adjacent controls.
+The Effects section handles richer interaction styles.
 
-Supported hover effects:
+Hover effects:
 
 - `none`
 - `magnetic`
@@ -232,26 +219,22 @@ Supported hover effects:
 - `morph`
 - `sparkles`
 
-Supported click effects:
+Click effects:
 
 - `none`
 - `ripple`
 - `confetti`
 - `explosion`
 
-Additional interaction tuning includes:
+Additional controls include:
 
 - click particle count
 - hover spring stiffness
 - hover spring damping
 
-This is the section that gives the generator more premium motion personality than a typical static button builder.
+### Text position
 
-### 11. Text Position
-
-The Text Position section controls alignment inside the button.
-
-Supported alignment logic covers combinations like:
+The Text Position section controls placement inside the button, including:
 
 - top-left
 - top-center
@@ -263,9 +246,7 @@ Supported alignment logic covers combinations like:
 - bottom-center
 - bottom-right
 
-This is important for more unusual button compositions or icon-heavy layouts.
-
-### 12. Text Shadow
+### Text shadow
 
 Text shadow controls include:
 
@@ -277,11 +258,9 @@ Text shadow controls include:
 - color mode
 - custom shadow color
 
-This allows subtle legibility enhancement or more stylized branded typography.
+### Icon system
 
-### 13. Icon system
-
-The button generator supports icon-state variation, not just one icon slot.
+The icon system supports state-aware icons instead of a single static slot.
 
 Supported icon features:
 
@@ -289,68 +268,58 @@ Supported icon features:
 - hover icon
 - active icon
 - loading icon
-- icon source from library
+- library icons
 - custom SVG input
-- left or right icon position
+- left / right placement
 - icon size
 - icon gap
 - icon color mode
 - custom icon color
 
-This is important because many button generators fail to support icon changes across states. This one does.
+This is one of the stronger parts of the generator because many visual editors fail to support icon changes across states.
 
-### 14. Group Preview
+### Group preview
 
-The Group Preview section lets users preview the same button in a grouped layout.
+The Group Preview section lets the user preview the button in a grouped action layout.
 
 Group controls include:
 
-- group enabled toggle
+- group enabled
 - group alignment
 - group gap
 
-This is useful when buyers want to see how a button style behaves alongside sibling actions.
+### Loading
 
-### 15. Loading
-
-The Loading section includes:
+Loading controls include:
 
 - loading label
 - spinner mode
 - spinner position
 - custom spinner SVG
 
-Loading state is treated as a real component state rather than a cosmetic afterthought.
+### Disabled
 
-### 16. Disabled
-
-The Disabled section includes:
+Disabled controls include:
 
 - disabled opacity
 - disabled cursor
-- custom disabled colors
 - disabled background
 - disabled text color
 - disabled border color
 - disabled border width
-- disabled hover suppression
 - disabled text shadow behavior
 
-This matters because disabled buttons often break parity between preview and exported code. The standalone generator explicitly handles this state.
+### Hover styling
 
-### 17. Hover
+Separate from hover effects, the Hover section controls the visual hover state:
 
-The Hover section controls visual hover styling, separate from the hover effect section.
-
-Supported hover style controls include:
-
-- hover enabled toggle
+- hover enabled
 - hover background mode
 - hover solid color
 - hover gradient mode
 - hover gradient angle
 - hover gradient start
-- optional hover gradient midpoint
+- optional hover midpoint
 - hover gradient end
 - hover text color mode
 - hover custom text color
@@ -359,19 +328,19 @@ Supported hover style controls include:
 - color transition duration
 - color transition easing
 
-### 18. Active
+### Active styling
 
-The Active section controls press-state styling:
+The Active section controls the pressed state:
 
-- active enabled toggle
-- active translate Y
-- active scale
+- active enabled
+- translate Y
+- scale
 - active background mode
 - active solid color
 - active gradient mode
 - active gradient angle
 - active gradient start
-- optional active gradient midpoint
+- optional active midpoint
 - active gradient end
 - active text color mode
 - active custom text color
@@ -380,224 +349,153 @@ The Active section controls press-state styling:
 - transform transition duration
 - transform transition easing
 
-### 19. Focus Ring
+### Focus ring
 
-The Focus Ring section includes:
+Focus ring controls include:
 
-- focus ring enabled toggle
-- focus ring width
-- focus ring offset
-- focus ring color
+- enabled
+- width
+- offset
+- color
 
-This is important both visually and for keyboard accessibility review.
+### State preview
 
-### 20. State Preview
-
-The State Preview section allows users to force:
+The State Preview section can force:
 
 - hover
 - active
 - focus
 
-This is extremely useful because it lets a buyer inspect transient states without manually triggering them every time.
+This is important because transient states can be inspected without manually retriggering them over and over.
 
-### 21. Accessibility
+### Accessibility
 
 Accessibility controls include:
 
 - aria-label
 - aria-pressed mode
 - aria-busy mode
-- minimum touch target mode
-- minimum touch size guidance
-- contrast feedback
+- minimum touch target handling
+- contrast guidance
 
-This makes the generator more than just a visual toy. It acknowledges production-facing accessibility concerns.
-
-## Preview and output behavior
+## Preview and export
 
 ### Live preview
 
-The preview is designed to reflect current editor state as closely as possible.
+The preview reflects the current editor state, including:
 
-That includes:
-
-- core button styling
+- styling
 - label changes
 - icon changes
-- loading state
 - disabled state
+- loading state
 - hover styling
 - active styling
 - focus ring
-- group preview mode
-- button motion
-- text motion
-- 3D shell motion
-- hover effects
-- click effects
-
-### Export formats
-
-Supported export formats:
-
-- React / JSX
-- HTML
-
-### Export behavior
-
-The exported output includes:
-
-- sizing
-- padding
-- typography
-- border styles
-- radii
-- shadows
-- gradients
-- icon states
-- spinner behavior
-- loading label
-- hover styling
-- active styling
-- focus ring behavior
-- accessibility attributes
-- motion settings
-- hover effects
-- click effects
-- grouped output support
-
-The exported button does not rely on hidden preview-only logic for the supported feature set.
-
-### Export parity notes
-
-The standalone generator currently uses the same motion model in:
-
-- live preview
-- copied code
-- downloaded React output
-- downloaded HTML output
-
-Reduced-motion handling is also respected in preview and export.
-
-## Reliability and QA status
-
-The project includes repeatable verification scripts.
-
-Current status:
-
-- `npm run typecheck` passes
-- `npm run build` passes
-- `npm run qa:features` passes with `37/37` checks
-- `npm run qa` passes end-to-end
-
-The QA script verifies both React and HTML export output and checks feature coverage across:
-
-- labels
-- disabled state
-- motion presets
-- motion controls
-- text motion
-- depth motion
-- layout
+- state preview forcing
 - group preview
-- styling
-- icon states
-- spinner behavior
-- hover behavior
-- active behavior
-- focus and accessibility
+- motion
 - hover effects
 - click effects
 
-The detailed checklist lives in [docs/QA_CHECKLIST.md](./docs/QA_CHECKLIST.md).
+### Code output
 
-## Installation
+The current packaged product exposes:
+
+- React / JSX output
+
+Users can:
+
+- inspect code in the code tab
+- copy the generated code
+- export the component as a file
+
+The project still contains export generation logic with broader internal support, but the actual standalone package UI is currently centered on React / JSX delivery.
+
+## What makes this project strong for buyers
+
+This project is valuable because it combines:
+
+- a very large preset catalog
+- deep button-state editing
+- motion and interaction styling
+- icon-state behavior
+- real accessibility-related controls
+- exportable component code
+
+That makes it suitable as:
+
+- a premium standalone UI generator
+- a prototyping tool
+- a client-work accelerator
+- a niche design-to-code utility
+
+## Installation and local development
 
 Requirements:
 
 - Node.js 20 or newer
 - npm 10 or newer recommended
 
-Install and run locally:
+Install:
 
 ```bash
 npm install
-npm run dev
 ```
 
-Open:
-
-```text
-http://localhost:3000
-```
-
-## Available scripts
+Run in development:
 
 ```bash
 npm run dev
-npm run build
-npm run start
-npm run lint
-npm run typecheck
-npm run qa:features
-npm run qa
 ```
 
-What they do:
+Build:
 
-- `npm run dev`: starts the local development server
-- `npm run build`: creates a production build
-- `npm run start`: runs the production build
-- `npm run lint`: runs ESLint
-- `npm run typecheck`: runs TypeScript checking without emitting files
-- `npm run qa:features`: runs automated export feature assertions
-- `npm run qa`: runs lint, typecheck, build, and export QA together
+```bash
+npm run build
+```
+
+Run the production build:
+
+```bash
+npm run start
+```
+
+Available scripts:
+
+- `npm run dev`
+- `npm run build`
+- `npm run start`
+- `npm run lint`
+- `npm run typecheck`
 
 ## Project structure
 
-- `app/page.tsx`: main generator page and state wiring
-- `app/types.ts`: full editor state model
-- `app/_section/*`: editor sections and live preview implementation
-- `app/_utils/exportUtils.ts`: React and HTML export generation
-- `app/_utils/previewDoc.ts`: iframe preview document logic
-- `scripts/qa-feature-checks.mjs`: automated export verification
-- `docs/QA_CHECKLIST.md`: recorded QA checklist
+- `app/page.tsx`: main editor page, state wiring, export wiring
+- `app/types.ts`: main button state model
+- `app/_section/*`: section UI and live preview logic
+- `app/_utils/exportUtils.ts`: export generation
+- `app/_utils/previewDoc.ts`: iframe preview logic
+- `components/*`: shared controls, layout, export UI, theme helpers
 - `CHANGELOG.md`: release notes
-- `components/*`: shared editor, layout, and theme utilities
-
-## Marketplace positioning
-
-This standalone package is intended to be marketable as:
-
-- a button generator
-- a UI builder for designers and developers
-- a quick export tool for prototypes and client work
-- a premium standalone component generator ahead of the wider SaaS platform
-
-It is especially useful for buyers who want to:
-
-- explore button styles quickly
-- export code without rebuilding from scratch
-- test animated button directions
-- compare states visually
-- hand off a button spec with runnable code
 
 ## Known boundaries
 
-- The 3D icon engine exists in the codebase but is intentionally not the main active editor surface for this standalone release.
-- Undo / redo is debounce-based, so extremely fast toggle-flip-toggle sequences may collapse into one history step.
-- Lint passes but still reports a warning backlog in older editor and theme files.
-- This repository should stay private while the product is being finalized for sale.
+- The standalone package is focused on buttons only.
+- The 3D icon engine exists in the codebase but is not the primary active surface for this release.
+- Undo / redo is debounce-based, so extremely fast flip-flop changes may compress into fewer history steps.
+- Lint still reports a warning backlog in older editor and theme files.
+- This source should remain private while the product is being finalized for sale.
 
 ## Packaging notes
 
-- Do not include `node_modules` in a marketplace delivery archive.
-- Do not include `.next` in a marketplace delivery archive.
-- Do not include local build artifacts such as `*.tsbuildinfo`.
-- Create the final delivery zip only after manual release sign-off.
+For buyer delivery:
 
-## Related docs
+- do not include `node_modules`
+- do not include `.next`
+- do not include local build artifacts such as `*.tsbuildinfo`
+- keep the source package private until distribution terms are finalized
 
-- QA checklist: [docs/QA_CHECKLIST.md](./docs/QA_CHECKLIST.md)
-- Release notes: [CHANGELOG.md](./CHANGELOG.md)
+## Release notes
+
+- [CHANGELOG.md](./CHANGELOG.md)

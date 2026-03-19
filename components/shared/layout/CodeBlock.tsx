@@ -41,13 +41,26 @@ export default function CodeBlock({
   return (
     <div
       className={`relative group rounded-xl overflow-hidden border border-[var(--border)] bg-[#1e1e1e] ${className}`}
+      data-audit="code-block-root"
+      data-testid="code-block-root"
     >
+      <textarea
+        readOnly
+        tabIndex={-1}
+        aria-hidden="true"
+        value={code}
+        className="sr-only"
+        data-audit="code-raw-value"
+        data-testid="code-raw-value"
+      />
       <motion.button
         onClick={handleCopy}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         className="absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
         title="Copy code"
+        data-audit="copy-code-button"
+        data-testid="copy-code-button"
       >
         <AnimatePresence mode="wait" initial={false}>
           {copied ? (
@@ -85,7 +98,11 @@ function ScrollableCode({
   code: string;
 }) {
   return (
-    <div className="custom-scrollbar h-full overflow-auto">
+    <div
+      className="custom-scrollbar h-full overflow-auto"
+      data-audit="code-panel-scroll"
+      data-testid="code-panel-scroll"
+    >
       <SyntaxHighlighter
         language={language}
         style={vscDarkPlus}

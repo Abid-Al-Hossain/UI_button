@@ -663,7 +663,11 @@ export default function LivePreview(props: LivePreviewProps) {
         @media (prefers-reduced-motion: reduce){.uif-motion,.uif-shell,.uif-btn,.uif-label,.uif-label-char,.uif-ambient-glow,.uif-ambient-sheen,.uif-ambient-aurora,.uif-ripple,.uif-burst-particle,.uif-icon{animation:none!important;transition-duration:.01ms!important;}}
       `}</style>
 
-      <div className="uif-group">
+      <div
+        className="uif-group"
+        data-audit="live-preview-root"
+        data-testid="live-preview-root"
+      >
         {groupIndexes.map((index) => {
           const hovered = isHoveredFor(index);
           const focused = isFocusedFor(index);
@@ -683,140 +687,191 @@ export default function LivePreview(props: LivePreviewProps) {
                 key={index}
                 className="uif-motion"
                 data-animation={resolvedAnimation}
+                data-audit="live-preview-motion-shell"
+                data-index={index}
+                data-testid={`live-preview-motion-${index}`}
               >
                 <div
                   className="uif-shell"
                   data-depth-animation={resolvedDepthAnimation}
+                  data-audit="live-preview-shell"
+                  data-index={index}
+                  data-testid={`live-preview-shell-${index}`}
                   ref={(node) => {
                     shellRefs.current[index] = node;
                   }}
                 >
-                <button
-                  ref={(node) => {
-                    buttonRefs.current[index] = node;
+                  <button
+                    ref={(node) => {
+                      buttonRefs.current[index] = node;
                     }}
                     type="button"
                     className="uif-btn"
                     data-animation={resolvedAnimation}
                     data-hovered={hovered ? "true" : "false"}
+                    data-audit="live-preview-button"
+                    data-index={index}
+                    data-testid={`live-preview-button-${index}`}
                     style={{
-                    width,
-                    height,
-                    padding: `${padY} ${padX}`,
-                    gap,
-                    borderStyle: toStringValue(props.borderStyle, "solid"),
-                    borderRadius,
-                    fontFamily: toStringValue(props.fontFamily, "Arial, system-ui"),
-                    fontSize: `${toNumberValue(props.fontSizeValue, 14)}${toStringValue(props.fontSizeUnit, "px")}`,
-                    fontWeight: props.fontWeight ?? 700,
-                    letterSpacing: `${toNumberValue(props.letterSpacingValue, 0.2)}${toStringValue(props.letterSpacingUnit, "px")}`,
-                    lineHeight: props.lineHeight ?? 1,
-                    fontStyle: toStringValue(props.fontStyle, "normal"),
-                    textTransform: toStringValue(props.textTransform, "none"),
-                    textDecoration: toBooleanValue(props.underline, false) ? "underline" : "none",
-                    alignItems: resolveAlignItems(align),
-                    justifyContent: resolveJustify(align),
-                    cursor: loading ? "wait" : previewIsDisabled ? disabledCursor : "pointer",
-                    opacity: previewIsDisabled ? disabledOpacity : 1,
-                    transition:
-                      `background ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                      `color ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                      `border-color ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                      `box-shadow ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                      `filter ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                      `transform ${transitionTransformMs}ms ${transitionTransformEasing}, ` +
-                      `border-radius ${transitionTransformMs}ms ${transitionTransformEasing}`,
-                    background: snapshot.background,
-                    color: snapshot.color,
-                    borderColor: snapshot.borderColor,
-                    borderWidth: snapshot.borderWidth,
-                    boxShadow: focused ? focusShadow(snapshot.boxShadow) : snapshot.boxShadow,
-                    textShadow: snapshot.textShadow,
-                    transform:
-                      hoverEffect === "morph" && hovered && !previewIsDisabled
-                        ? `${snapshot.transform === "none" ? "" : snapshot.transform} scale(1.03)`.trim()
-                        : snapshot.transform,
-                    filter: snapshot.filter,
-                    backdropFilter: `blur(${backdropBlur})`,
-                    WebkitBackdropFilter: `blur(${backdropBlur})`,
-                  }}
-                  disabled={previewIsDisabled}
-                  onMouseEnter={() => {
-                    if (!previewIsDisabled && hoverEnabled && !forceHover) {
-                      setHoveredIndex(index);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    if (!forceHover) setHoveredIndex(-1);
-                    if (!forceActive) setActiveIndex(-1);
-                    resetShell(index);
-                  }}
-                  onMouseMove={(event) => updatePointer(event, index)}
-                  onMouseDown={() => {
-                    if (!previewIsDisabled && activeEnabled && !forceActive) {
-                      setActiveIndex(index);
-                    }
-                  }}
-                  onMouseUp={() => {
-                    if (!forceActive) setActiveIndex(-1);
-                  }}
-                  onFocus={() => {
-                    if (!forceFocus) setFocusedIndex(index);
-                  }}
-                  onBlur={() => {
-                    if (!forceFocus) setFocusedIndex(-1);
-                  }}
-                  onClick={(event) => handleClick(event, index)}
-                  aria-label={toStringValue(props.ariaLabel, label)}
-                  aria-pressed={resolveAriaPressed(toStringValue(props.ariaPressedMode, "off"))}
-                  aria-busy={resolveAriaBusy(toStringValue(props.ariaBusyMode, "auto"), loading)}
-                    >
-                  <div className="uif-ambient-layer uif-ambient-glow" aria-hidden="true" />
-                  <div className="uif-ambient-layer uif-ambient-sheen" aria-hidden="true" />
-                  <div className="uif-ambient-layer uif-ambient-aurora" aria-hidden="true" />
-                  {topGradient !== "none" ? (
+                      width,
+                      height,
+                      padding: `${padY} ${padX}`,
+                      gap,
+                      borderStyle: toStringValue(props.borderStyle, "solid"),
+                      borderRadius,
+                      fontFamily: toStringValue(props.fontFamily, "Arial, system-ui"),
+                      fontSize: `${toNumberValue(props.fontSizeValue, 14)}${toStringValue(props.fontSizeUnit, "px")}`,
+                      fontWeight: props.fontWeight ?? 700,
+                      letterSpacing: `${toNumberValue(props.letterSpacingValue, 0.2)}${toStringValue(props.letterSpacingUnit, "px")}`,
+                      lineHeight: props.lineHeight ?? 1,
+                      fontStyle: toStringValue(props.fontStyle, "normal"),
+                      textTransform: toStringValue(props.textTransform, "none"),
+                      textDecoration: toBooleanValue(props.underline, false) ? "underline" : "none",
+                      alignItems: resolveAlignItems(align),
+                      justifyContent: resolveJustify(align),
+                      cursor: loading ? "wait" : previewIsDisabled ? disabledCursor : "pointer",
+                      opacity: previewIsDisabled ? disabledOpacity : 1,
+                      transition:
+                        `background ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                        `color ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                        `border-color ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                        `box-shadow ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                        `filter ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                        `transform ${transitionTransformMs}ms ${transitionTransformEasing}, ` +
+                        `border-radius ${transitionTransformMs}ms ${transitionTransformEasing}`,
+                      background: snapshot.background,
+                      color: snapshot.color,
+                      borderColor: snapshot.borderColor,
+                      borderWidth: snapshot.borderWidth,
+                      boxShadow: focused ? focusShadow(snapshot.boxShadow) : snapshot.boxShadow,
+                      textShadow: snapshot.textShadow,
+                      transform:
+                        hoverEffect === "morph" && hovered && !previewIsDisabled
+                          ? `${snapshot.transform === "none" ? "" : snapshot.transform} scale(1.03)`.trim()
+                          : snapshot.transform,
+                      filter: snapshot.filter,
+                      backdropFilter: `blur(${backdropBlur})`,
+                      WebkitBackdropFilter: `blur(${backdropBlur})`,
+                    }}
+                    disabled={previewIsDisabled}
+                    onMouseEnter={() => {
+                      if (!previewIsDisabled && hoverEnabled && !forceHover) {
+                        setHoveredIndex(index);
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      if (!forceHover) setHoveredIndex(-1);
+                      if (!forceActive) setActiveIndex(-1);
+                      resetShell(index);
+                    }}
+                    onMouseMove={(event) => updatePointer(event, index)}
+                    onMouseDown={() => {
+                      if (!previewIsDisabled && activeEnabled && !forceActive) {
+                        setActiveIndex(index);
+                      }
+                    }}
+                    onMouseUp={() => {
+                      if (!forceActive) setActiveIndex(-1);
+                    }}
+                    onFocus={() => {
+                      if (!forceFocus) setFocusedIndex(index);
+                    }}
+                    onBlur={() => {
+                      if (!forceFocus) setFocusedIndex(-1);
+                    }}
+                    onClick={(event) => handleClick(event, index)}
+                    aria-label={toStringValue(props.ariaLabel, label)}
+                    aria-pressed={resolveAriaPressed(toStringValue(props.ariaPressedMode, "off"))}
+                    aria-busy={resolveAriaBusy(toStringValue(props.ariaBusyMode, "auto"), loading)}
+                  >
                     <div
-                      className="uif-top-gradient"
+                      className="uif-ambient-layer uif-ambient-glow"
                       aria-hidden="true"
-                      style={{ background: topGradient }}
+                      data-audit="live-preview-ambient-glow"
+                      data-index={index}
                     />
-                  ) : null}
-                  {parallaxEnabled ? <div className="uif-parallax-glow" aria-hidden="true" /> : null}
-                  {hoverEffect === "spotlight" ? (
-                    <div className="uif-spotlight" aria-hidden="true" />
-                  ) : null}
-                  {hovered && hoverEffect === "sparkles" ? (
-                    <div className="uif-sparkle-layer" aria-hidden="true">
-                      {SPARKLE_DOTS.map((dot, dotIndex) => (
-                        <span
-                          key={dotIndex}
-                          className="uif-sparkle-dot"
-                          style={{
-                            top: dot.top,
-                            left: dot.left,
-                            width: dot.size + "px",
-                            height: dot.size + "px",
-                            animationDelay: dot.delay,
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
+                    <div
+                      className="uif-ambient-layer uif-ambient-sheen"
+                      aria-hidden="true"
+                      data-audit="live-preview-ambient-sheen"
+                      data-index={index}
+                    />
+                    <div
+                      className="uif-ambient-layer uif-ambient-aurora"
+                      aria-hidden="true"
+                      data-audit="live-preview-ambient-aurora"
+                      data-index={index}
+                    />
+                    {topGradient !== "none" ? (
+                      <div
+                        className="uif-top-gradient"
+                        aria-hidden="true"
+                        data-audit="live-preview-top-gradient"
+                        data-index={index}
+                        style={{ background: topGradient }}
+                      />
+                    ) : null}
+                    {parallaxEnabled ? (
+                      <div
+                        className="uif-parallax-glow"
+                        aria-hidden="true"
+                        data-audit="live-preview-parallax-glow"
+                        data-index={index}
+                      />
+                    ) : null}
+                    {hoverEffect === "spotlight" ? (
+                      <div
+                        className="uif-spotlight"
+                        aria-hidden="true"
+                        data-audit="live-preview-spotlight"
+                        data-index={index}
+                      />
+                    ) : null}
+                    {hovered && hoverEffect === "sparkles" ? (
+                      <div
+                        className="uif-sparkle-layer"
+                        aria-hidden="true"
+                        data-audit="live-preview-sparkles"
+                        data-index={index}
+                      >
+                        {SPARKLE_DOTS.map((dot, dotIndex) => (
+                          <span
+                            key={dotIndex}
+                            className="uif-sparkle-dot"
+                            data-audit="live-preview-sparkle-dot"
+                            data-dot-index={dotIndex}
+                            style={{
+                              top: dot.top,
+                              left: dot.left,
+                              width: dot.size + "px",
+                              height: dot.size + "px",
+                              animationDelay: dot.delay,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
                     <span
                       className="uif-content"
+                      data-audit="live-preview-content"
+                      data-index={index}
+                      data-testid={`live-preview-content-${index}`}
                       style={{ flexDirection: iconFirst ? "row" : "row-reverse" }}
                     >
                       {currentIcon.markup ? (
-                      <span
-                        className="uif-icon"
-                        style={{
-                          width: iconSize,
-                          height: iconSize,
-                          fontSize: iconSize,
-                          filter: iconEmbossFilter,
-                          color: toStringValue(props.iconColor, "currentColor"),
-                          animation: currentIcon.animated ? "spin 1s linear infinite" : "none",
-                        }}
+                        <span
+                          className="uif-icon"
+                          data-audit="live-preview-icon"
+                          data-index={index}
+                          data-testid={`live-preview-icon-${index}`}
+                          style={{
+                            width: iconSize,
+                            height: iconSize,
+                            fontSize: iconSize,
+                            filter: iconEmbossFilter,
+                            color: toStringValue(props.iconColor, "currentColor"),
+                            animation: currentIcon.animated ? "spin 1s linear infinite" : "none",
+                          }}
                         >
                           <span dangerouslySetInnerHTML={{ __html: currentIcon.markup }} />
                         </span>
@@ -824,6 +879,9 @@ export default function LivePreview(props: LivePreviewProps) {
                       <span
                         className="uif-label"
                         data-text-animation={resolvedTextAnimation}
+                        data-audit="live-preview-label"
+                        data-index={index}
+                        data-testid={`live-preview-label-${index}`}
                       >
                         {renderLabelContent(loading ? loadingLabel : label)}
                       </span>

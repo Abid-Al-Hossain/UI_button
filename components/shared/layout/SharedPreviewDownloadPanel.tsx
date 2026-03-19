@@ -65,6 +65,8 @@ export default function PreviewDownloadPanel(props: {
     <ScrollArea className="lg:pl-2 h-full">
       <div
         className="rounded-2xl border p-5 transition-all duration-300"
+        data-audit="preview-download-panel"
+        data-testid="preview-download-panel"
         style={{
           borderColor: "var(--border)",
           background: "color-mix(in oklab, var(--surface) 80%, transparent)",
@@ -91,17 +93,23 @@ export default function PreviewDownloadPanel(props: {
             )}
           </div>
 
-          <ExportOptionsControl
-            format={downloadFormat}
-            setFormat={setDownloadFormat}
-            fileName={downloadName}
-            setFileName={setDownloadName}
-            onDownload={handleDownload}
-          />
+          <div data-audit="export-button" data-testid="export-button">
+            <ExportOptionsControl
+              format={downloadFormat}
+              setFormat={setDownloadFormat}
+              fileName={downloadName}
+              setFileName={setDownloadName}
+              onDownload={handleDownload}
+            />
+          </div>
         </div>
 
         <div className="mt-4">
-          <div className="h-[620px] w-full relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+          <div
+            className="h-[620px] w-full relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]"
+            data-audit="preview-stage"
+            data-testid="preview-stage"
+          >
             <AnimatePresence mode="wait">
               {viewMode === "preview" ? (
                 <motion.div
@@ -111,6 +119,8 @@ export default function PreviewDownloadPanel(props: {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.25, type: "spring", bounce: 0 }}
                   className="h-full w-full"
+                  data-audit="preview-stage-preview"
+                  data-testid="preview-stage-preview"
                 >
                   <PreviewPanel
                     bgMode={previewBgMode}
@@ -119,7 +129,11 @@ export default function PreviewDownloadPanel(props: {
                     setCustomColor={setPreviewBgInput}
                   >
                     {previewNode ? (
-                      <div className="h-full w-full flex items-center justify-center">
+                      <div
+                        className="h-full w-full flex items-center justify-center"
+                        data-audit="preview-node-container"
+                        data-testid="preview-node-container"
+                      >
                         {previewNode}
                       </div>
                     ) : mounted && iframeSrcDoc ? (
@@ -137,6 +151,8 @@ export default function PreviewDownloadPanel(props: {
                         srcDoc={iframeSrcDoc}
                         tabIndex={0}
                         className="h-full w-full border-none"
+                        data-audit="preview-iframe"
+                        data-testid="preview-iframe"
                       />
                     ) : (
                       <div className="h-full w-full" />
@@ -151,6 +167,8 @@ export default function PreviewDownloadPanel(props: {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.25, type: "spring", bounce: 0 }}
                   className="h-full w-full bg-[#1e1e1e]"
+                  data-audit="code-panel"
+                  data-testid="code-panel"
                 >
                   <CodeBlock
                     code={code || ""}
@@ -165,6 +183,8 @@ export default function PreviewDownloadPanel(props: {
 
         <div
           className="mt-4 text-xs flex justify-between items-center"
+          data-audit="preview-download-tip"
+          data-testid="preview-download-tip"
           style={{ color: "var(--muted)" }}
         >
           <span>

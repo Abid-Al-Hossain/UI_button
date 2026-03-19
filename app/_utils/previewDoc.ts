@@ -186,48 +186,48 @@ export const PREVIEW_SRC_DOC = `<!doctype html>
 </head>
 <body>
 
-<div id="preview-root" class="preview-root">
-  <div id="single-wrap" class="preview-single">
-    <div class="preview-item">
-      <button class="btn" data-role="single">
+<div id="preview-root" class="preview-root" data-audit="iframe-preview-root" data-testid="iframe-preview-root">
+  <div id="single-wrap" class="preview-single" data-audit="iframe-preview-single-wrap" data-testid="iframe-preview-single-wrap">
+    <div class="preview-item" data-audit="iframe-preview-item" data-testid="iframe-preview-item-single">
+      <button class="btn" data-role="single" data-audit="iframe-preview-button" data-testid="iframe-preview-button-single">
         <span class="ambient-layer ambient-glow" aria-hidden="true"></span>
         <span class="ambient-layer ambient-sheen" aria-hidden="true"></span>
         <span class="ambient-layer ambient-aurora" aria-hidden="true"></span>
-        <span class="icon-svg icon-left"></span>
-        <span class="label"></span>
-        <span class="icon-svg icon-right"></span>
+        <span class="icon-svg icon-left" data-audit="iframe-preview-icon-left" data-testid="iframe-preview-icon-left-single"></span>
+        <span class="label" data-audit="iframe-preview-label" data-testid="iframe-preview-label-single"></span>
+        <span class="icon-svg icon-right" data-audit="iframe-preview-icon-right" data-testid="iframe-preview-icon-right-single"></span>
       </button>
     </div>
   </div>
-  <div id="group-wrap" class="preview-group" aria-hidden="true">
-    <div class="preview-item">
-      <button class="btn" data-role="group">
+  <div id="group-wrap" class="preview-group" aria-hidden="true" data-audit="iframe-preview-group-wrap" data-testid="iframe-preview-group-wrap">
+    <div class="preview-item" data-audit="iframe-preview-item" data-testid="iframe-preview-item-group-0">
+      <button class="btn" data-role="group" data-audit="iframe-preview-button" data-testid="iframe-preview-button-group-0">
         <span class="ambient-layer ambient-glow" aria-hidden="true"></span>
         <span class="ambient-layer ambient-sheen" aria-hidden="true"></span>
         <span class="ambient-layer ambient-aurora" aria-hidden="true"></span>
-        <span class="icon-svg icon-left"></span>
-        <span class="label"></span>
-        <span class="icon-svg icon-right"></span>
+        <span class="icon-svg icon-left" data-audit="iframe-preview-icon-left" data-testid="iframe-preview-icon-left-group-0"></span>
+        <span class="label" data-audit="iframe-preview-label" data-testid="iframe-preview-label-group-0"></span>
+        <span class="icon-svg icon-right" data-audit="iframe-preview-icon-right" data-testid="iframe-preview-icon-right-group-0"></span>
       </button>
     </div>
-    <div class="preview-item">
-      <button class="btn" data-role="group">
+    <div class="preview-item" data-audit="iframe-preview-item" data-testid="iframe-preview-item-group-1">
+      <button class="btn" data-role="group" data-audit="iframe-preview-button" data-testid="iframe-preview-button-group-1">
         <span class="ambient-layer ambient-glow" aria-hidden="true"></span>
         <span class="ambient-layer ambient-sheen" aria-hidden="true"></span>
         <span class="ambient-layer ambient-aurora" aria-hidden="true"></span>
-        <span class="icon-svg icon-left"></span>
-        <span class="label"></span>
-        <span class="icon-svg icon-right"></span>
+        <span class="icon-svg icon-left" data-audit="iframe-preview-icon-left" data-testid="iframe-preview-icon-left-group-1"></span>
+        <span class="label" data-audit="iframe-preview-label" data-testid="iframe-preview-label-group-1"></span>
+        <span class="icon-svg icon-right" data-audit="iframe-preview-icon-right" data-testid="iframe-preview-icon-right-group-1"></span>
       </button>
     </div>
-    <div class="preview-item">
-      <button class="btn" data-role="group">
+    <div class="preview-item" data-audit="iframe-preview-item" data-testid="iframe-preview-item-group-2">
+      <button class="btn" data-role="group" data-audit="iframe-preview-button" data-testid="iframe-preview-button-group-2">
         <span class="ambient-layer ambient-glow" aria-hidden="true"></span>
         <span class="ambient-layer ambient-sheen" aria-hidden="true"></span>
         <span class="ambient-layer ambient-aurora" aria-hidden="true"></span>
-        <span class="icon-svg icon-left"></span>
-        <span class="label"></span>
-        <span class="icon-svg icon-right"></span>
+        <span class="icon-svg icon-left" data-audit="iframe-preview-icon-left" data-testid="iframe-preview-icon-left-group-2"></span>
+        <span class="label" data-audit="iframe-preview-label" data-testid="iframe-preview-label-group-2"></span>
+        <span class="icon-svg icon-right" data-audit="iframe-preview-icon-right" data-testid="iframe-preview-icon-right-group-2"></span>
       </button>
     </div>
   </div>

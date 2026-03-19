@@ -46,13 +46,19 @@ export function PreviewPanel({
   return (
     <div
       className="relative flex h-full w-full flex-col overflow-hidden rounded-xl border shadow-sm transition-colors duration-300"
+      data-audit="preview-panel-root"
+      data-testid="preview-panel-root"
       style={{
         borderColor: "var(--border)",
         backgroundColor: backgroundStyle,
       }}
     >
       {/* Content Area */}
-      <div className="flex-1 overflow-auto p-8 flex items-center justify-center">
+      <div
+        className="flex-1 overflow-auto p-8 flex items-center justify-center"
+        data-audit="preview-canvas"
+        data-testid="preview-canvas"
+      >
         {children}
       </div>
 
@@ -62,6 +68,8 @@ export function PreviewPanel({
         {isOpen && (
           <div
             className="mb-2 w-64 rounded-xl border p-3 shadow-xl backdrop-blur-md"
+            data-audit="preview-panel-controls"
+            data-testid="preview-panel-controls"
             style={{
               backgroundColor:
                 "color-mix(in oklab, var(--card) 90%, transparent)",
@@ -132,6 +140,8 @@ export function PreviewPanel({
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex h-10 w-10 items-center justify-center rounded-full border shadow-lg transition-transform hover:scale-105 active:scale-95"
+          data-audit="preview-panel-trigger"
+          data-testid="preview-panel-trigger"
           style={{
             backgroundColor: "var(--card)",
             borderColor: "var(--border)",

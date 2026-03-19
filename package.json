@@ -18,10 +18,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
-    "qa:features": "node ./scripts/qa-feature-checks.mjs",
-    "qa:presets": "node ./scripts/qa-preset-checks.mjs",
-    "qa": "npm run lint && npm run typecheck && npm run build && npm run qa:features && npm run qa:presets"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",

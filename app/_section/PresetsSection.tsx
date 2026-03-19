@@ -8,6 +8,10 @@ import { LabeledField, SectionCard, Segmented } from "./ui";
 
 const PAGE_SIZE = 24;
 
+function pickRandomPreset<T>(items: T[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
 function Badge({ label }: { label: string }) {
   return (
     <span
@@ -94,7 +98,7 @@ export default function PresetsSection({
 
   const applyRandomPreset = () => {
     if (!filtered.length) return;
-    const next = filtered[Math.floor(Math.random() * filtered.length)];
+    const next = pickRandomPreset(filtered);
     onApplyPreset(next);
   };
 
@@ -290,33 +294,36 @@ export default function PresetsSection({
                   No presets match the current filters. Adjust or reset the filters to continue.
                 </div>
               ) : visible.map((preset, index) => (
-                <motion.div
-                  key={preset.id}
-                  initial={{
-                    opacity: 0,
-                    x: pageDirection > 0 ? 24 : pageDirection < 0 ? -24 : 0,
-                    y: 0,
-                  }}
-                  animate={{ opacity: 1, x: 0, y: 0 }}
-                  transition={{
-                    x: {
-                      type: "spring",
-                      stiffness: 340,
-                      damping: 32,
-                      mass: 0.9,
-                    },
-                    opacity: {
-                      duration: 0.18,
-                      delay: Math.min(index, 7) * 0.015,
-                      ease: "linear",
-                    },
-                  }}
-                  className="rounded-2xl border p-3"
-                  style={{
-                    borderColor: "var(--border)",
-                    background: "color-mix(in oklab, var(--card) 68%, transparent)",
-                  }}
-                >
+              <motion.div
+                key={preset.id}
+                initial={{
+                  opacity: 0,
+                  x: pageDirection > 0 ? 24 : pageDirection < 0 ? -24 : 0,
+                  y: 0,
+                }}
+                animate={{ opacity: 1, x: 0, y: 0 }}
+                transition={{
+                  x: {
+                    type: "spring",
+                    stiffness: 340,
+                    damping: 32,
+                    mass: 0.9,
+                  },
+                  opacity: {
+                    duration: 0.18,
+                    delay: Math.min(index, 7) * 0.015,
+                    ease: "linear",
+                  },
+                }}
+                className="rounded-2xl border p-3"
+                data-audit="preset-card"
+                data-preset-id={preset.id}
+                data-testid={`preset-card-${preset.id}`}
+                style={{
+                  borderColor: "var(--border)",
+                  background: "color-mix(in oklab, var(--card) 68%, transparent)",
+                }}
+              >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="text-sm font-semibold" style={{ color: "var(--text)" }}>
@@ -331,6 +338,9 @@ export default function PresetsSection({
                       type="button"
                       onClick={() => onApplyPreset(preset)}
                       className="rounded-xl px-3 py-2 text-xs font-semibold uf-clickable"
+                      data-audit="preset-apply-button"
+                      data-preset-id={preset.id}
+                      data-testid={`preset-apply-${preset.id}`}
                       style={{
                         background: "var(--primary)",
                         color: "#ffffff",
