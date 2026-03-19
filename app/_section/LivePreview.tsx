@@ -119,6 +119,11 @@ type LivePreviewProps = {
   [key: string]: unknown;
 };
 
+type PreviewPointerEvent = React.PointerEvent<HTMLButtonElement>;
+type PreviewClickEvent =
+  | React.MouseEvent<HTMLButtonElement>
+  | React.PointerEvent<HTMLButtonElement>;
+
 const DEFAULT_SPINNER_SVG =
   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>';
 
@@ -294,6 +299,7 @@ export default function LivePreview(props: LivePreviewProps) {
   const interactionRefs = useRef<Array<HTMLDivElement | null>>([]);
   const effectHostRefs = useRef<Array<HTMLDivElement | null>>([]);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const lastPressEffectAtRef = useRef<number[]>([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -310,6 +316,7 @@ export default function LivePreview(props: LivePreviewProps) {
     effectHostRefs.current.forEach((host) => {
       if (host) host.innerHTML = "";
     });
+    lastPressEffectAtRef.current = [];
 
     buttonRefs.current.forEach((button) => {
       if (!button) return;
@@ -554,10 +561,13 @@ export default function LivePreview(props: LivePreviewProps) {
     if (shell) shell.style.transform = "";
   };
 
-  const updatePointer = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    index: number,
-  ) => {
+  const supportsHoverPointer = (event: PreviewPointerEvent) =>
+    event.pointerType !== "touch";
+
+  const isPrimaryPressPointer = (event: PreviewPointerEvent) =>
+    event.button === 0 || event.pointerType === "touch" || event.pointerType === "pen";
+
+  const updatePointer = (event: PreviewPointerEvent, index: number) => {
     const button = buttonRefs.current[index];
     const shell = interactionRefs.current[index];
     if (!button) return;
@@ -597,10 +607,7 @@ export default function LivePreview(props: LivePreviewProps) {
     }
   };
 
-  const handleClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-    index: number,
-  ) => {
+  const triggerVisualClickEffect = (event: PreviewClickEvent, index: number) => {
     if (previewIsDisabled || clickEffectProfile.kind === "none") return;
 
     const button = buttonRefs.current[index];
@@ -619,6 +626,16 @@ export default function LivePreview(props: LivePreviewProps) {
     }
 
     spawnBurst(effectHost, event, clickEffectProfile, burstColors);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>, index: number) => {
+    if (previewIsDisabled) return;
+
+    const lastPressEffectAt = lastPressEffectAtRef.current[index] ?? 0;
+    if (Date.now() - lastPressEffectAt > 450) {
+      triggerVisualClickEffect(event, index);
+    }
+    lastPressEffectAtRef.current[index] = 0;
   };
 
   return (
@@ -663,7 +680,7 @@ export default function LivePreview(props: LivePreviewProps) {
         .uif-depth-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${motionEasing} infinite;}
         .uif-shell{position:relative;display:inline-flex;transition:transform ${shellTransitionMs}ms ${shellTransitionEase};transform-style:preserve-3d;}
         .uif-click-host{position:absolute;inset:-96px;pointer-events:none;overflow:visible;z-index:4;}
-        .uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;}
+        .uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;background-clip:padding-box;-webkit-background-clip:padding-box;touch-action:manipulation;}
         .uif-btn[data-animation='cyber-glitch']{animation:uif-cyber-glitch ${Math.max(900, Math.round(motionDurationEffectiveMs * 0.7))}ms steps(1) infinite;}
         .uif-content{position:relative;z-index:1;display:flex;align-items:center;gap:inherit;}
         .uif-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -801,30 +818,67 @@ export default function LivePreview(props: LivePreviewProps) {
                         WebkitBackdropFilter: `blur(${backdropBlur})`,
                       }}
                       disabled={previewIsDisabled}
-                      onMouseEnter={() => {
-                        if (!previewIsDisabled && hoverEnabled && !forceHover) {
+                      onPointerEnter={(event) => {
+                        if (
+                          supportsHoverPointer(event) &&
+                          !previewIsDisabled &&
+                          hoverEnabled &&
+                          !forceHover
+                        ) {
                           setHoveredIndex(index);
                         }
                       }}
-                      onMouseLeave={() => {
-                        if (!forceHover) setHoveredIndex(-1);
+                      onPointerLeave={(event) => {
+                        if (supportsHoverPointer(event) && !forceHover) setHoveredIndex(-1);
                         if (!forceActive) setActiveIndex(-1);
+                        lastPressEffectAtRef.current[index] = 0;
                         resetShell(index);
                       }}
-                      onMouseMove={(event) => updatePointer(event, index)}
-                      onMouseDown={() => {
+                      onPointerMove={(event) => {
+                        if (!supportsHoverPointer(event)) return;
+                        updatePointer(event, index);
+                      }}
+                      onPointerDown={(event) => {
+                        if (!isPrimaryPressPointer(event)) return;
+                        event.currentTarget.setPointerCapture?.(event.pointerId);
                         if (!previewIsDisabled && activeEnabled && !forceActive) {
                           setActiveIndex(index);
                         }
+                        if (!previewIsDisabled) {
+                          const pressAt = Date.now();
+                          lastPressEffectAtRef.current[index] = pressAt;
+                          triggerVisualClickEffect(event, index);
+                          window.setTimeout(() => {
+                            if (lastPressEffectAtRef.current[index] === pressAt) {
+                              lastPressEffectAtRef.current[index] = 0;
+                            }
+                          }, 500);
+                        }
                       }}
-                      onMouseUp={() => {
+                      onPointerUp={(event) => {
+                        if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+                          event.currentTarget.releasePointerCapture?.(event.pointerId);
+                        }
+                        if (supportsHoverPointer(event) && hoverEnabled && !forceHover) {
+                          setHoveredIndex(index);
+                        }
                         if (!forceActive) setActiveIndex(-1);
+                      }}
+                      onPointerCancel={(event) => {
+                        if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+                          event.currentTarget.releasePointerCapture?.(event.pointerId);
+                        }
+                        if (!forceHover) setHoveredIndex(-1);
+                        if (!forceActive) setActiveIndex(-1);
+                        lastPressEffectAtRef.current[index] = 0;
+                        resetShell(index);
                       }}
                       onFocus={() => {
                         if (!forceFocus) setFocusedIndex(index);
                       }}
                       onBlur={() => {
                         if (!forceFocus) setFocusedIndex(-1);
+                        if (!forceActive) setActiveIndex(-1);
                       }}
                       onClick={(event) => handleClick(event, index)}
                       aria-label={toStringValue(props.ariaLabel, label)}

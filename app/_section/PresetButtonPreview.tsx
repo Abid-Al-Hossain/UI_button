@@ -33,6 +33,8 @@ export default function PresetButtonPreview({ preset }: { preset: ButtonPreset }
           minHeight: model.minHeight,
           padding: model.padding,
           background: model.background,
+          backgroundClip: "padding-box",
+          WebkitBackgroundClip: "padding-box",
           backdropFilter: model.backdropFilter,
           WebkitBackdropFilter: model.backdropFilter,
           color: model.color,

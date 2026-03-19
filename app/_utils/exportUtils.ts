@@ -669,7 +669,7 @@ const buildSharedCss = (config: NormalizedConfig) => {
     `.uif-depth-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${config.motionEasing} infinite;}`,
     `.uif-shell{position:relative;display:inline-flex;transition:transform ${config.shellTransitionMs}ms ${config.shellTransitionEase};transform-style:preserve-3d;}`,
     ".uif-click-host{position:absolute;inset:-96px;pointer-events:none;overflow:visible;z-index:4;}",
-    ".uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;}",
+    ".uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;background-clip:padding-box;-webkit-background-clip:padding-box;touch-action:manipulation;}",
     `.uif-btn[data-animation='cyber-glitch']{animation:uif-cyber-glitch ${Math.max(900, Math.round(motionDurationEffectiveMs * 0.7))}ms steps(1) infinite;}`,
     ".uif-content{position:relative;z-index:1;display:flex;align-items:center;gap:inherit;}",
     ".uif-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;}",
@@ -788,6 +788,7 @@ export default function ${componentName}({
   const interactionRefs = useRef([]);
   const effectHostRefs = useRef([]);
   const buttonRefs = useRef([]);
+  const lastPressEffectAtRef = useRef([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -796,6 +797,11 @@ export default function ${componentName}({
   const resolvedAnimation = isDisabled ? "none" : CONFIG.animation;
   const resolvedTextAnimation = isDisabled ? "none" : CONFIG.textAnimation;
   const resolvedDepthAnimation = isDisabled ? "none" : CONFIG.depthAnimation;
+
+  const supportsHoverPointer = (event) => event.pointerType !== "touch";
+
+  const isPrimaryPressPointer = (event) =>
+    event.button === 0 || event.pointerType === "touch" || event.pointerType === "pen";
 
   const resetShell = (index) => {
     const shell = interactionRefs.current[index];
@@ -844,7 +850,7 @@ export default function ${componentName}({
     }
   };
 
-  const triggerClickEffect = (event, index) => {
+  const triggerVisualClickEffect = (event, index) => {
     if (isDisabled || CONFIG.clickEffectProfile.kind === "none") return;
 
     const button = buttonRefs.current[index];
@@ -863,6 +869,16 @@ export default function ${componentName}({
     }
 
     spawnBurst(effectHost, event, CONFIG.clickEffectProfile, CONFIG.burstColors);
+  };
+
+  const triggerClickEffect = (event, index) => {
+    if (isDisabled) return;
+
+    const lastPressEffectAt = lastPressEffectAtRef.current[index] || 0;
+    if (Date.now() - lastPressEffectAt > 450) {
+      triggerVisualClickEffect(event, index);
+    }
+    lastPressEffectAtRef.current[index] = 0;
   };
 
   const getStyleSnapshot = (hovered, active) => {
@@ -1100,25 +1116,63 @@ export default function ${componentName}({
                         transform: dynamicTransform,
                       }}
                       disabled={isDisabled}
-                      onMouseEnter={() => {
-                        if (!isDisabled && CONFIG.hoverEnabled) {
+                      onPointerEnter={(event) => {
+                        if (supportsHoverPointer(event) && !isDisabled && CONFIG.hoverEnabled) {
                           setHoveredIndex(index);
                         }
                       }}
-                      onMouseLeave={() => {
-                        setHoveredIndex(-1);
+                      onPointerLeave={(event) => {
+                        if (supportsHoverPointer(event)) {
+                          setHoveredIndex(-1);
+                        }
                         setActiveIndex(-1);
+                        lastPressEffectAtRef.current[index] = 0;
                         resetShell(index);
                       }}
-                      onMouseMove={(event) => updatePointer(event, index)}
-                      onMouseDown={() => {
+                      onPointerMove={(event) => {
+                        if (!supportsHoverPointer(event)) return;
+                        updatePointer(event, index);
+                      }}
+                      onPointerDown={(event) => {
+                        if (!isPrimaryPressPointer(event)) return;
+                        event.currentTarget.setPointerCapture?.(event.pointerId);
                         if (!isDisabled && CONFIG.activeEnabled) {
                           setActiveIndex(index);
                         }
+                        if (!isDisabled) {
+                          const pressAt = Date.now();
+                          lastPressEffectAtRef.current[index] = pressAt;
+                          triggerVisualClickEffect(event, index);
+                          window.setTimeout(() => {
+                            if (lastPressEffectAtRef.current[index] === pressAt) {
+                              lastPressEffectAtRef.current[index] = 0;
+                            }
+                          }, 500);
+                        }
                       }}
-                      onMouseUp={() => setActiveIndex(-1)}
+                      onPointerUp={(event) => {
+                        if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+                          event.currentTarget.releasePointerCapture?.(event.pointerId);
+                        }
+                        if (supportsHoverPointer(event) && !isDisabled && CONFIG.hoverEnabled) {
+                          setHoveredIndex(index);
+                        }
+                        setActiveIndex(-1);
+                      }}
+                      onPointerCancel={(event) => {
+                        if (event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+                          event.currentTarget.releasePointerCapture?.(event.pointerId);
+                        }
+                        setHoveredIndex(-1);
+                        setActiveIndex(-1);
+                        lastPressEffectAtRef.current[index] = 0;
+                        resetShell(index);
+                      }}
                       onFocus={() => setFocusedIndex(index)}
-                      onBlur={() => setFocusedIndex(-1)}
+                      onBlur={() => {
+                        setFocusedIndex(-1);
+                        setActiveIndex(-1);
+                      }}
                       onClick={(event) => {
                         if (isDisabled) return;
                         onClick(event, index);
@@ -1201,6 +1255,7 @@ const buildHtmlContent = (config: NormalizedConfig) => {
       const interactionNodes = [];
       const effectHostNodes = [];
       const buttonNodes = [];
+      const lastPressEffectAt = [];
 
       function resolveAriaPressed(value) {
         if (value === "true") return "true";
@@ -1214,6 +1269,14 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         if (value === "false") return "false";
         if (value === "auto") return CONFIG.loading ? "true" : null;
         return null;
+      }
+
+      function supportsHoverPointer(event) {
+        return event.pointerType !== "touch";
+      }
+
+      function isPrimaryPressPointer(event) {
+        return event.button === 0 || event.pointerType === "touch" || event.pointerType === "pen";
       }
 
       function getSnapshot(index) {
@@ -1373,7 +1436,7 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         }
       }
 
-      function triggerClickEffect(event, index) {
+      function triggerVisualClickEffect(event, index) {
         if (CONFIG.disabled || CONFIG.loading || CONFIG.clickEffectProfile.kind === "none") return;
 
         const button = buttonNodes[index];
@@ -1392,6 +1455,16 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         }
 
         spawnBurst(effectHost, event, CONFIG.clickEffectProfile);
+      }
+
+      function triggerClickEffect(event, index) {
+        if (CONFIG.disabled || CONFIG.loading) return;
+
+        const lastPressAt = lastPressEffectAt[index] || 0;
+        if (Date.now() - lastPressAt > 450) {
+          triggerVisualClickEffect(event, index);
+        }
+        lastPressEffectAt[index] = 0;
       }
 
       function renderButton(index) {
@@ -1617,27 +1690,71 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         effectHostNodes[index] = effectHost;
         buttonNodes[index] = button;
 
-        button.addEventListener("mouseenter", () => {
-          if (!CONFIG.disabled && !CONFIG.loading && CONFIG.hoverEnabled) {
+        button.addEventListener("pointerenter", (event) => {
+          if (
+            supportsHoverPointer(event) &&
+            !CONFIG.disabled &&
+            !CONFIG.loading &&
+            CONFIG.hoverEnabled
+          ) {
             state.hoveredIndex = index;
             renderAll();
           }
         });
-        button.addEventListener("mouseleave", () => {
-          state.hoveredIndex = -1;
+        button.addEventListener("pointerleave", (event) => {
+          if (supportsHoverPointer(event)) {
+            state.hoveredIndex = -1;
+          }
           state.activeIndex = -1;
+          lastPressEffectAt[index] = 0;
           resetShell(index);
           renderAll();
         });
-        button.addEventListener("mousemove", (event) => updatePointer(event, index));
-        button.addEventListener("mousedown", () => {
+        button.addEventListener("pointermove", (event) => {
+          if (!supportsHoverPointer(event)) return;
+          updatePointer(event, index);
+        });
+        button.addEventListener("pointerdown", (event) => {
+          if (!isPrimaryPressPointer(event)) return;
+          button.setPointerCapture?.(event.pointerId);
           if (!CONFIG.disabled && !CONFIG.loading && CONFIG.activeEnabled) {
             state.activeIndex = index;
             renderAll();
           }
+          if (!CONFIG.disabled && !CONFIG.loading) {
+            const pressAt = Date.now();
+            lastPressEffectAt[index] = pressAt;
+            triggerVisualClickEffect(event, index);
+            window.setTimeout(() => {
+              if (lastPressEffectAt[index] === pressAt) {
+                lastPressEffectAt[index] = 0;
+              }
+            }, 500);
+          }
         });
-        button.addEventListener("mouseup", () => {
+        button.addEventListener("pointerup", (event) => {
+          if (button.hasPointerCapture?.(event.pointerId)) {
+            button.releasePointerCapture?.(event.pointerId);
+          }
+          if (
+            supportsHoverPointer(event) &&
+            !CONFIG.disabled &&
+            !CONFIG.loading &&
+            CONFIG.hoverEnabled
+          ) {
+            state.hoveredIndex = index;
+          }
           state.activeIndex = -1;
+          renderAll();
+        });
+        button.addEventListener("pointercancel", (event) => {
+          if (button.hasPointerCapture?.(event.pointerId)) {
+            button.releasePointerCapture?.(event.pointerId);
+          }
+          state.hoveredIndex = -1;
+          state.activeIndex = -1;
+          lastPressEffectAt[index] = 0;
+          resetShell(index);
           renderAll();
         });
         button.addEventListener("focus", () => {
@@ -1646,6 +1763,7 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         });
         button.addEventListener("blur", () => {
           state.focusedIndex = -1;
+          state.activeIndex = -1;
           renderAll();
         });
         button.addEventListener("click", (event) => {

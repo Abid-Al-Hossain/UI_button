@@ -240,7 +240,7 @@ const MOODS: PresetMood[] = [
     buttonAnimation: "breathe",
     textAnimation: "none",
     depthAnimation: "none",
-    hoverEffect: "magnetic",
+    hoverEffect: "none",
     clickEffect: "ripple",
     iconName: "arrowRight",
     hoverIconName: "arrowRight",
@@ -272,7 +272,7 @@ const MOODS: PresetMood[] = [
     buttonAnimation: "sheen",
     textAnimation: "shimmer",
     depthAnimation: "orbit",
-    hoverEffect: "tilt",
+    hoverEffect: "none",
     clickEffect: "ripple",
     iconName: "star",
     hoverIconName: "star",
@@ -290,7 +290,7 @@ const MOODS: PresetMood[] = [
     hoverBgModeSolid: "gradient",
     activeBgModeSolid: "gradient",
     topGradientEnabled: true,
-    parallaxHighlightEnabled: true,
+    parallaxHighlightEnabled: false,
     glossEnabled: true,
     bevelEnabled: true,
     iconEmbossMode: "raised",
@@ -354,7 +354,7 @@ const MOODS: PresetMood[] = [
     hoverBgModeSolid: "gradient",
     activeBgModeSolid: "custom",
     topGradientEnabled: false,
-    parallaxHighlightEnabled: true,
+    parallaxHighlightEnabled: false,
     glossEnabled: false,
     bevelEnabled: false,
     iconEmbossMode: "off",
@@ -418,7 +418,7 @@ const MOODS: PresetMood[] = [
     hoverBgModeSolid: "custom",
     activeBgModeSolid: "custom",
     topGradientEnabled: true,
-    parallaxHighlightEnabled: true,
+    parallaxHighlightEnabled: false,
     glossEnabled: false,
     bevelEnabled: true,
     iconEmbossMode: "inset",
@@ -546,7 +546,7 @@ const MOODS: PresetMood[] = [
     hoverBgModeSolid: "gradient",
     activeBgModeSolid: "gradient",
     topGradientEnabled: true,
-    parallaxHighlightEnabled: true,
+    parallaxHighlightEnabled: false,
     glossEnabled: true,
     bevelEnabled: true,
     iconEmbossMode: "raised",
@@ -560,7 +560,7 @@ const MOODS: PresetMood[] = [
     buttonAnimation: "none",
     textAnimation: "none",
     depthAnimation: "rock",
-    hoverEffect: "tilt",
+    hoverEffect: "none",
     clickEffect: "explosion",
     iconName: "plus",
     hoverIconName: "x",
@@ -592,7 +592,7 @@ const MOODS: PresetMood[] = [
     buttonAnimation: "soft-glow",
     textAnimation: "shimmer",
     depthAnimation: "orbit",
-    hoverEffect: "spotlight",
+    hoverEffect: "none",
     clickEffect: "ripple",
     iconName: "star",
     hoverIconName: "arrowRight",
@@ -610,7 +610,7 @@ const MOODS: PresetMood[] = [
     hoverBgModeSolid: "gradient",
     activeBgModeSolid: "gradient",
     topGradientEnabled: true,
-    parallaxHighlightEnabled: true,
+    parallaxHighlightEnabled: false,
     glossEnabled: true,
     bevelEnabled: true,
     iconEmbossMode: "raised",
@@ -1053,6 +1053,19 @@ function makeVariantState(
 
   const solidText = pickReadableTextColor(theme.mid);
   const outlineTone = pickReadableThemeTone(theme.accent, theme.base, theme.canvas);
+  const solidBorderVisible = [
+    "luxe",
+    "aurora",
+    "neon",
+    "cyber",
+    "glass",
+    "chrome",
+    "velvet",
+  ].includes(mood.id);
+  const solidBorderWidth = solidBorderVisible ? "1" : "0";
+  const solidBorderColor = solidBorderVisible
+    ? hexWithAlpha(solidText, mood.id === "glass" ? 0.18 : 0.12)
+    : "transparent";
 
   if (variant === "solid") {
     state.useGradient = true;
@@ -1063,8 +1076,10 @@ function makeVariantState(
     state.gradEndInput = theme.end;
     state.bgInput = theme.base;
     state.textInput = solidText;
-    state.borderWidthText = theme.id === "obsidian" ? "1" : "1";
-    state.borderInput = hexWithAlpha(solidText, 0.12);
+    state.borderWidthText = solidBorderWidth;
+    state.borderHoverWidthText = solidBorderWidth;
+    state.borderActiveWidthText = solidBorderWidth;
+    state.borderInput = solidBorderColor;
     state.hoverBgMode = mood.hoverBgModeSolid;
     state.hoverBgInput = mood.hoverBgModeSolid === "custom" ? theme.mid : theme.base;
     state.hoverGradAngleText = "90";
