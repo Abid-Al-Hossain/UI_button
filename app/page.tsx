@@ -3381,26 +3381,16 @@ export default function ActionButtonPage() {
   };
 
   // --- Live Preview Node construction ---
-  const showLivePreview =
-    clickEffect !== "none" ||
-    hoverEffect !== "none" ||
-    animation !== "none" ||
-    textAnimation !== "none" ||
-    depthAnimation !== "none";
-  let livePreviewNode = null;
-
-  if (showLivePreview) {
-    livePreviewNode = (
-      <LivePreview
-        {...previewPayload}
-        clickEffect={clickEffect as any}
-        clickParticleCount={clickParticleCount}
-        hoverEffect={hoverEffect}
-        hoverSpringStiffness={hoverSpringStiffness}
-        hoverSpringDamping={hoverSpringDamping}
-      />
-    );
-  }
+  const livePreviewNode = (
+    <LivePreview
+      {...previewPayload}
+      clickEffect={clickEffect as any}
+      clickParticleCount={clickParticleCount}
+      hoverEffect={hoverEffect}
+      hoverSpringStiffness={hoverSpringStiffness}
+      hoverSpringDamping={hoverSpringDamping}
+    />
+  );
 
   // --- Render ---
   const headerActions = (

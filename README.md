@@ -41,12 +41,24 @@ This is a deep button generator, not just a demo page with a few color pickers.
 
 ## Preset system
 
-The Presets section includes `432` editable presets.
+The Presets section includes `864` editable presets.
 
-These presets are generated from combinations of:
+Each preset is a full button configuration, not just a color swap. Applying one can load a complete editable state that includes:
+
+- typography direction
+- spacing and sizing choices
+- border treatment
+- shadow and depth styling
+- motion settings
+- icon direction
+- hover behavior
+- active behavior
+- visual effects
+
+The library is structured from combinations of:
 
 - `12` color families
-- `6` moods
+- `12` premium style archetypes
 - `3` variants
 - `2` size profiles
 

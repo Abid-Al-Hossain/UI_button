@@ -1,4 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
+import {
+  getClickEffectProfile,
+  getSafeBurstColors,
+} from "../_utils/interactionEffects";
 
 type LivePreviewProps = {
   label?: string;
@@ -236,41 +240,59 @@ const normalizeDepthAnimationPreset = (value: string) => {
 };
 
 const spawnBurst = (
-  node: HTMLButtonElement | null,
+  node: HTMLDivElement | null,
   event: React.MouseEvent<HTMLButtonElement>,
-  mode: string,
-  particleCount: number,
+  profile: ReturnType<typeof getClickEffectProfile>,
   colors: string[],
 ) => {
-  if (!node) return;
+  if (!node || profile.kind !== "burst") return;
 
   const rect = node.getBoundingClientRect();
   const originX = event.clientX - rect.left;
   const originY = event.clientY - rect.top;
-  const total = mode === "explosion" ? Math.max(particleCount, 36) : particleCount;
+  const total = profile.particleCount;
 
   for (let index = 0; index < total; index += 1) {
     const particle = document.createElement("span");
-    const angle = (Math.PI * 2 * index) / total + Math.random() * 0.45;
-    const distance = mode === "explosion" ? 90 + Math.random() * 60 : 56 + Math.random() * 34;
+    const angle =
+      (Math.PI * 2 * index) / total +
+      (Math.random() - 0.5) * profile.angleJitter;
+    const distance =
+      profile.distanceMin +
+      Math.random() * (profile.distanceMax - profile.distanceMin);
+    const width =
+      profile.widthMin + Math.random() * (profile.widthMax - profile.widthMin);
+    const height =
+      profile.heightMin + Math.random() * (profile.heightMax - profile.heightMin);
 
     particle.className = "uif-burst-particle";
     particle.style.setProperty("--origin-x", originX + "px");
     particle.style.setProperty("--origin-y", originY + "px");
     particle.style.setProperty("--dx", Math.cos(angle) * distance + "px");
     particle.style.setProperty("--dy", Math.sin(angle) * distance + "px");
-    particle.style.setProperty("--rot", (Math.random() - 0.5) * 540 + "deg");
-    particle.style.setProperty("--scale", String(0.6 + Math.random() * 1.1));
+    particle.style.setProperty(
+      "--rot",
+      (Math.random() - 0.5) * profile.rotationJitter + "deg",
+    );
+    particle.style.setProperty(
+      "--scale",
+      String(
+        profile.scaleMin +
+          Math.random() * (profile.scaleMax - profile.scaleMin),
+      ),
+    );
     particle.style.background = colors[index % colors.length];
-    particle.style.width = (mode === "explosion" ? 7 : 5) + "px";
-    particle.style.height = (mode === "explosion" ? 13 : 10) + "px";
+    particle.style.width = width + "px";
+    particle.style.height = height + "px";
+    particle.style.borderRadius = profile.borderRadius;
     node.appendChild(particle);
-    window.setTimeout(() => particle.remove(), 760);
+    window.setTimeout(() => particle.remove(), profile.durationMs);
   }
 };
 
 export default function LivePreview(props: LivePreviewProps) {
-  const shellRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const interactionRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const effectHostRefs = useRef<Array<HTMLDivElement | null>>([]);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -281,8 +303,12 @@ export default function LivePreview(props: LivePreviewProps) {
     setActiveIndex(-1);
     setFocusedIndex(-1);
 
-    shellRefs.current.forEach((shell) => {
+    interactionRefs.current.forEach((shell) => {
       if (shell) shell.style.transform = "";
+    });
+
+    effectHostRefs.current.forEach((host) => {
+      if (host) host.innerHTML = "";
     });
 
     buttonRefs.current.forEach((button) => {
@@ -465,13 +491,16 @@ export default function LivePreview(props: LivePreviewProps) {
           }px ${toStringValue(props.focusRingColor, "#60a5fa")}`,
         ].join("");
 
-  const burstColors = [
+  const clickEffectProfile = getClickEffectProfile(clickEffect, particleCount);
+  const burstColors = getSafeBurstColors(clickEffect, [
     baseStyle.background,
     baseStyle.color,
     hoverStyle.background,
+    hoverStyle.color,
     activeStyle.background,
+    activeStyle.color,
     toStringValue(props.focusRingColor, "#60a5fa"),
-  ].filter(Boolean);
+  ]);
 
   const isHoveredFor = (index: number) => forceHover || hoveredIndex === index;
   const isActiveFor = (index: number) => forceActive || activeIndex === index;
@@ -521,7 +550,7 @@ export default function LivePreview(props: LivePreviewProps) {
   };
 
   const resetShell = (index: number) => {
-    const shell = shellRefs.current[index];
+    const shell = interactionRefs.current[index];
     if (shell) shell.style.transform = "";
   };
 
@@ -530,7 +559,7 @@ export default function LivePreview(props: LivePreviewProps) {
     index: number,
   ) => {
     const button = buttonRefs.current[index];
-    const shell = shellRefs.current[index];
+    const shell = interactionRefs.current[index];
     if (!button) return;
 
     const rect = button.getBoundingClientRect();
@@ -572,12 +601,13 @@ export default function LivePreview(props: LivePreviewProps) {
     event: React.MouseEvent<HTMLButtonElement>,
     index: number,
   ) => {
-    if (previewIsDisabled || clickEffect === "none") return;
+    if (previewIsDisabled || clickEffectProfile.kind === "none") return;
 
     const button = buttonRefs.current[index];
+    const effectHost = effectHostRefs.current[index];
     if (!button) return;
 
-    if (clickEffect === "ripple") {
+    if (clickEffectProfile.kind === "ripple") {
       const rect = button.getBoundingClientRect();
       const ripple = document.createElement("span");
       ripple.className = "uif-ripple";
@@ -588,7 +618,7 @@ export default function LivePreview(props: LivePreviewProps) {
       return;
     }
 
-    spawnBurst(button, event, clickEffect, particleCount, burstColors);
+    spawnBurst(effectHost, event, clickEffectProfile, burstColors);
   };
 
   return (
@@ -626,12 +656,14 @@ export default function LivePreview(props: LivePreviewProps) {
         .uif-motion{display:inline-flex;}
         .uif-motion[data-animation='breathe']{animation:uif-breathe ${motionDurationEffectiveMs}ms ${motionEasing} infinite;}
         .uif-motion[data-animation='soft-drift']{animation:uif-soft-drift ${motionDurationEffectiveMs}ms ${motionEasing} infinite;}
+        .uif-depth-shell{position:relative;display:inline-flex;transform-style:preserve-3d;}
+        .uif-depth-shell[data-depth-animation='rock']{animation:uif-depth-rock ${motionDurationEffectiveMs}ms ${motionEasing} infinite;}
+        .uif-depth-shell[data-depth-animation='orbit']{animation:uif-depth-orbit ${Math.round(motionDurationEffectiveMs * 1.18)}ms ${motionEasing} infinite;}
+        .uif-depth-shell[data-depth-animation='gyro']{animation:uif-depth-gyro ${Math.round(motionDurationEffectiveMs * 1.06)}ms ${motionEasing} infinite;}
+        .uif-depth-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${motionEasing} infinite;}
         .uif-shell{position:relative;display:inline-flex;transition:transform ${shellTransitionMs}ms ${shellTransitionEase};transform-style:preserve-3d;}
-        .uif-shell[data-depth-animation='rock']{animation:uif-depth-rock ${motionDurationEffectiveMs}ms ${motionEasing} infinite;}
-        .uif-shell[data-depth-animation='orbit']{animation:uif-depth-orbit ${Math.round(motionDurationEffectiveMs * 1.18)}ms ${motionEasing} infinite;}
-        .uif-shell[data-depth-animation='gyro']{animation:uif-depth-gyro ${Math.round(motionDurationEffectiveMs * 1.06)}ms ${motionEasing} infinite;}
-        .uif-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${motionEasing} infinite;}
-        .uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+        .uif-click-host{position:absolute;inset:-96px;pointer-events:none;overflow:visible;z-index:4;}
+        .uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;}
         .uif-btn[data-animation='cyber-glitch']{animation:uif-cyber-glitch ${Math.max(900, Math.round(motionDurationEffectiveMs * 0.7))}ms steps(1) infinite;}
         .uif-content{position:relative;z-index:1;display:flex;align-items:center;gap:inherit;}
         .uif-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;}
@@ -660,7 +692,7 @@ export default function LivePreview(props: LivePreviewProps) {
         .uif-sparkle-dot{position:absolute;border-radius:999px;background:rgba(255,255,255,.95);box-shadow:0 0 12px rgba(255,255,255,.9);animation:sparkle 900ms ease-out forwards;}
         .uif-ripple{position:absolute;width:18px;height:18px;border-radius:999px;background:currentColor;opacity:.3;pointer-events:none;transform:translate(-50%,-50%);animation:ripple .65s ease-out forwards;}
         .uif-burst-particle{position:absolute;left:var(--origin-x,50%);top:var(--origin-y,50%);width:6px;height:12px;border-radius:999px;pointer-events:none;animation:burst .72s ease-out forwards;}
-        @media (prefers-reduced-motion: reduce){.uif-motion,.uif-shell,.uif-btn,.uif-label,.uif-label-char,.uif-ambient-glow,.uif-ambient-sheen,.uif-ambient-aurora,.uif-ripple,.uif-burst-particle,.uif-icon{animation:none!important;transition-duration:.01ms!important;}}
+        @media (prefers-reduced-motion: reduce){.uif-motion,.uif-depth-shell,.uif-shell,.uif-btn,.uif-label,.uif-label-char,.uif-ambient-glow,.uif-ambient-sheen,.uif-ambient-aurora,.uif-ripple,.uif-burst-particle,.uif-icon{animation:none!important;transition-duration:.01ms!important;}}
       `}</style>
 
       <div
@@ -692,98 +724,113 @@ export default function LivePreview(props: LivePreviewProps) {
                 data-testid={`live-preview-motion-${index}`}
               >
                 <div
-                  className="uif-shell"
+                  className="uif-depth-shell"
                   data-depth-animation={resolvedDepthAnimation}
-                  data-audit="live-preview-shell"
+                  data-audit="live-preview-depth-shell"
                   data-index={index}
-                  data-testid={`live-preview-shell-${index}`}
-                  ref={(node) => {
-                    shellRefs.current[index] = node;
-                  }}
+                  data-testid={`live-preview-depth-shell-${index}`}
                 >
-                  <button
-                    ref={(node) => {
-                      buttonRefs.current[index] = node;
-                    }}
-                    type="button"
-                    className="uif-btn"
-                    data-animation={resolvedAnimation}
-                    data-hovered={hovered ? "true" : "false"}
-                    data-audit="live-preview-button"
+                  <div
+                    className="uif-shell"
+                    data-audit="live-preview-shell"
                     data-index={index}
-                    data-testid={`live-preview-button-${index}`}
-                    style={{
-                      width,
-                      height,
-                      padding: `${padY} ${padX}`,
-                      gap,
-                      borderStyle: toStringValue(props.borderStyle, "solid"),
-                      borderRadius,
-                      fontFamily: toStringValue(props.fontFamily, "Arial, system-ui"),
-                      fontSize: `${toNumberValue(props.fontSizeValue, 14)}${toStringValue(props.fontSizeUnit, "px")}`,
-                      fontWeight: props.fontWeight ?? 700,
-                      letterSpacing: `${toNumberValue(props.letterSpacingValue, 0.2)}${toStringValue(props.letterSpacingUnit, "px")}`,
-                      lineHeight: props.lineHeight ?? 1,
-                      fontStyle: toStringValue(props.fontStyle, "normal"),
-                      textTransform: toStringValue(props.textTransform, "none"),
-                      textDecoration: toBooleanValue(props.underline, false) ? "underline" : "none",
-                      alignItems: resolveAlignItems(align),
-                      justifyContent: resolveJustify(align),
-                      cursor: loading ? "wait" : previewIsDisabled ? disabledCursor : "pointer",
-                      opacity: previewIsDisabled ? disabledOpacity : 1,
-                      transition:
-                        `background ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                        `color ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                        `border-color ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                        `box-shadow ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                        `filter ${transitionColorMs}ms ${transitionColorEasing}, ` +
-                        `transform ${transitionTransformMs}ms ${transitionTransformEasing}, ` +
-                        `border-radius ${transitionTransformMs}ms ${transitionTransformEasing}`,
-                      background: snapshot.background,
-                      color: snapshot.color,
-                      borderColor: snapshot.borderColor,
-                      borderWidth: snapshot.borderWidth,
-                      boxShadow: focused ? focusShadow(snapshot.boxShadow) : snapshot.boxShadow,
-                      textShadow: snapshot.textShadow,
-                      transform:
-                        hoverEffect === "morph" && hovered && !previewIsDisabled
-                          ? `${snapshot.transform === "none" ? "" : snapshot.transform} scale(1.03)`.trim()
-                          : snapshot.transform,
-                      filter: snapshot.filter,
-                      backdropFilter: `blur(${backdropBlur})`,
-                      WebkitBackdropFilter: `blur(${backdropBlur})`,
+                    data-testid={`live-preview-shell-${index}`}
+                    ref={(node) => {
+                      interactionRefs.current[index] = node;
                     }}
-                    disabled={previewIsDisabled}
-                    onMouseEnter={() => {
-                      if (!previewIsDisabled && hoverEnabled && !forceHover) {
-                        setHoveredIndex(index);
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      if (!forceHover) setHoveredIndex(-1);
-                      if (!forceActive) setActiveIndex(-1);
-                      resetShell(index);
-                    }}
-                    onMouseMove={(event) => updatePointer(event, index)}
-                    onMouseDown={() => {
-                      if (!previewIsDisabled && activeEnabled && !forceActive) {
-                        setActiveIndex(index);
-                      }
-                    }}
-                    onMouseUp={() => {
-                      if (!forceActive) setActiveIndex(-1);
-                    }}
-                    onFocus={() => {
-                      if (!forceFocus) setFocusedIndex(index);
-                    }}
-                    onBlur={() => {
-                      if (!forceFocus) setFocusedIndex(-1);
-                    }}
-                    onClick={(event) => handleClick(event, index)}
-                    aria-label={toStringValue(props.ariaLabel, label)}
-                    aria-pressed={resolveAriaPressed(toStringValue(props.ariaPressedMode, "off"))}
-                    aria-busy={resolveAriaBusy(toStringValue(props.ariaBusyMode, "auto"), loading)}
                   >
+                    <div
+                      className="uif-click-host"
+                      aria-hidden="true"
+                      data-audit="live-preview-click-host"
+                      data-index={index}
+                      ref={(node) => {
+                        effectHostRefs.current[index] = node;
+                      }}
+                    />
+                    <button
+                      ref={(node) => {
+                        buttonRefs.current[index] = node;
+                      }}
+                      type="button"
+                      className="uif-btn"
+                      data-animation={resolvedAnimation}
+                      data-hovered={hovered ? "true" : "false"}
+                      data-audit="live-preview-button"
+                      data-index={index}
+                      data-testid={`live-preview-button-${index}`}
+                      style={{
+                        width,
+                        height,
+                        padding: `${padY} ${padX}`,
+                        gap,
+                        borderStyle: toStringValue(props.borderStyle, "solid"),
+                        borderRadius,
+                        fontFamily: toStringValue(props.fontFamily, "Arial, system-ui"),
+                        fontSize: `${toNumberValue(props.fontSizeValue, 14)}${toStringValue(props.fontSizeUnit, "px")}`,
+                        fontWeight: props.fontWeight ?? 700,
+                        letterSpacing: `${toNumberValue(props.letterSpacingValue, 0.2)}${toStringValue(props.letterSpacingUnit, "px")}`,
+                        lineHeight: props.lineHeight ?? 1,
+                        fontStyle: toStringValue(props.fontStyle, "normal"),
+                        textTransform: toStringValue(props.textTransform, "none"),
+                        textDecoration: toBooleanValue(props.underline, false) ? "underline" : "none",
+                        alignItems: resolveAlignItems(align),
+                        justifyContent: resolveJustify(align),
+                        cursor: loading ? "wait" : previewIsDisabled ? disabledCursor : "pointer",
+                        opacity: previewIsDisabled ? disabledOpacity : 1,
+                        transition:
+                          `background ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                          `color ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                          `border-color ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                          `box-shadow ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                          `filter ${transitionColorMs}ms ${transitionColorEasing}, ` +
+                          `transform ${transitionTransformMs}ms ${transitionTransformEasing}, ` +
+                          `border-radius ${transitionTransformMs}ms ${transitionTransformEasing}`,
+                        background: snapshot.background,
+                        color: snapshot.color,
+                        borderColor: snapshot.borderColor,
+                        borderWidth: snapshot.borderWidth,
+                        boxShadow: focused ? focusShadow(snapshot.boxShadow) : snapshot.boxShadow,
+                        textShadow: snapshot.textShadow,
+                        transform:
+                          hoverEffect === "morph" && hovered && !previewIsDisabled
+                            ? `${snapshot.transform === "none" ? "" : snapshot.transform} scale(1.03)`.trim()
+                            : snapshot.transform,
+                        filter: snapshot.filter,
+                        backdropFilter: `blur(${backdropBlur})`,
+                        WebkitBackdropFilter: `blur(${backdropBlur})`,
+                      }}
+                      disabled={previewIsDisabled}
+                      onMouseEnter={() => {
+                        if (!previewIsDisabled && hoverEnabled && !forceHover) {
+                          setHoveredIndex(index);
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (!forceHover) setHoveredIndex(-1);
+                        if (!forceActive) setActiveIndex(-1);
+                        resetShell(index);
+                      }}
+                      onMouseMove={(event) => updatePointer(event, index)}
+                      onMouseDown={() => {
+                        if (!previewIsDisabled && activeEnabled && !forceActive) {
+                          setActiveIndex(index);
+                        }
+                      }}
+                      onMouseUp={() => {
+                        if (!forceActive) setActiveIndex(-1);
+                      }}
+                      onFocus={() => {
+                        if (!forceFocus) setFocusedIndex(index);
+                      }}
+                      onBlur={() => {
+                        if (!forceFocus) setFocusedIndex(-1);
+                      }}
+                      onClick={(event) => handleClick(event, index)}
+                      aria-label={toStringValue(props.ariaLabel, label)}
+                      aria-pressed={resolveAriaPressed(toStringValue(props.ariaPressedMode, "off"))}
+                      aria-busy={resolveAriaBusy(toStringValue(props.ariaBusyMode, "auto"), loading)}
+                    >
                     <div
                       className="uif-ambient-layer uif-ambient-glow"
                       aria-hidden="true"
@@ -886,7 +933,8 @@ export default function LivePreview(props: LivePreviewProps) {
                         {renderLabelContent(loading ? loadingLabel : label)}
                       </span>
                     </span>
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
           );

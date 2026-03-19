@@ -19,6 +19,7 @@ export type PresetPreviewModel = {
   letterSpacing: string;
   lineHeight: string;
   topGradient: string;
+  backdropFilter: string;
   iconSize: string;
   iconGap: string;
   iconColor: string;
@@ -134,6 +135,15 @@ function getBaseShadow(state: ActionButtonState) {
     layers.push(`${dx}px ${dy}px ${blur}px 0px ${depthColor}`);
   }
 
+  const edgeThicknessPx = clamp(Number(state.edgeThicknessText) || 0, 0, 20);
+  if (edgeThicknessPx > 0 && allowOuter) {
+    const edgeOpacity = clamp(0.1 + depthPx / 80, 0.08, 0.24);
+    const edgeColor = hexWithAlpha(shadowColor, edgeOpacity);
+    const edgeX = Math.round(shadowDirX * edgeThicknessPx);
+    const edgeY = Math.round(shadowDirY * edgeThicknessPx);
+    layers.push(`${edgeX}px ${edgeY}px 0px 0px ${edgeColor}`);
+  }
+
   if (state.baseShadowEnabled) {
     const baseShadowSize = clamp(Number(state.baseShadowSizeText) || 0, 0, 30);
     const baseShadowOpacity = clamp(Number(state.baseShadowOpacityText) || 0, 0, 1);
@@ -200,6 +210,27 @@ function getBaseShadow(state: ActionButtonState) {
     }
   }
 
+  const borderDepthPx = clamp(Number(state.borderDepthSizeText) || 0, 0, 24);
+  if (state.borderDepthMode !== "none" && borderDepthPx > 0) {
+    const sign = state.borderDepthMode === "raised" ? 1 : -1;
+    const bx = Math.round(shadowDirX * borderDepthPx);
+    const by = Math.round(shadowDirY * borderDepthPx);
+    layers.push(`inset ${-sign * bx}px ${-sign * by}px ${borderDepthPx}px 0px rgba(255, 255, 255, 0.35)`);
+    layers.push(`inset ${sign * bx}px ${sign * by}px ${borderDepthPx}px 0px rgba(0, 0, 0, 0.28)`);
+  }
+
+  const edgeGradientSizePx = clamp(Number(state.edgeGradientSizeText) || 0, 0, 24);
+  const edgeGradientStrength = clamp(Number(state.edgeGradientStrengthText) || 0, 0, 1);
+  if (state.edgeGradientEnabled && edgeGradientSizePx > 0 && edgeGradientStrength > 0) {
+    const edgeInset = Math.max(1, Math.round(edgeGradientSizePx / 2));
+    layers.push(
+      `inset 0 ${edgeGradientSizePx}px ${edgeGradientSizePx}px -${edgeInset}px rgba(255, 255, 255, ${edgeGradientStrength})`,
+    );
+    layers.push(
+      `inset 0 -${edgeGradientSizePx}px ${edgeGradientSizePx}px -${edgeInset}px rgba(0, 0, 0, ${edgeGradientStrength * 0.9})`,
+    );
+  }
+
   return layers.join(", ") || "none";
 }
 
@@ -233,6 +264,12 @@ function getFontFamily(state: ActionButtonState) {
   return SYSTEM_FONTS[state.systemFontIdx]?.css ?? "Arial, system-ui";
 }
 
+function getBackdropFilter(state: ActionButtonState) {
+  if (!state.backdropBlurEnabled) return "none";
+  const blur = clamp(Number(state.backdropBlurText) || 0, 0, 40);
+  return blur > 0 ? `blur(${blur}px)` : "none";
+}
+
 export function buildPresetPreviewModel(state: ActionButtonState): PresetPreviewModel {
   return {
     canvas: getPreviewCanvas(state),
@@ -254,6 +291,7 @@ export function buildPresetPreviewModel(state: ActionButtonState): PresetPreview
     letterSpacing: `${state.letterSpacingText}${state.letterSpacingUnit}`,
     lineHeight: state.lineHeightText || "1",
     topGradient: getTopGradient(state),
+    backdropFilter: getBackdropFilter(state),
     iconSize: toLength(state.iconSizeText, 18),
     iconGap: toLength(state.iconGapText, 10),
     iconColor:

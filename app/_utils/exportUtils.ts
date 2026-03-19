@@ -1,3 +1,9 @@
+import {
+  getClickEffectProfile,
+  getSafeBurstColors,
+  type ClickEffectProfile,
+} from "./interactionEffects";
+
 export type DownloadFormat = "react" | "html";
 
 type TransitionEasing =
@@ -100,6 +106,7 @@ type NormalizedConfig = {
     ariaPressed: string;
     ariaBusy: string;
   };
+  clickEffectProfile: ClickEffectProfile;
   burstColors: string[];
 };
 
@@ -486,19 +493,19 @@ const normalizeConfig = (payload: ExportPayloadInput): NormalizedConfig => {
     filter: "none",
   };
 
-  const burstColors = Array.from(
-    new Set(
-      [
-        baseStyle.background,
-        baseStyle.color,
-        hoverStyle.background,
-        hoverStyle.color,
-        activeStyle.background,
-        activeStyle.color,
-        toStringValue(payload.focusRingColor, "#60a5fa"),
-      ].filter(Boolean),
-    ),
+  const clickEffectProfile = getClickEffectProfile(
+    clickEffect,
+    toNumberValue(payload.clickParticleCount, 24),
   );
+  const burstColors = getSafeBurstColors(clickEffect, [
+    baseStyle.background,
+    baseStyle.color,
+    hoverStyle.background,
+    hoverStyle.color,
+    activeStyle.background,
+    activeStyle.color,
+    toStringValue(payload.focusRingColor, "#60a5fa"),
+  ]);
 
   const groupAlign = toStringValue(payload.groupAlign, "center");
 
@@ -607,7 +614,8 @@ const normalizeConfig = (payload: ExportPayloadInput): NormalizedConfig => {
       ariaPressed: toStringValue(firstDefined(payload.ariaPressed, payload["ariaPressedMode"]), "off"),
       ariaBusy: toStringValue(firstDefined(payload.ariaBusy, payload["ariaBusyMode"]), "auto"),
     },
-    burstColors: burstColors.length ? burstColors : ["#111827", "#60a5fa", "#ffffff"],
+    clickEffectProfile,
+    burstColors,
   };
 };
 
@@ -654,12 +662,14 @@ const buildSharedCss = (config: NormalizedConfig) => {
     ".uif-motion{display:inline-flex;}",
     `.uif-motion[data-animation='breathe']{animation:uif-breathe ${motionDurationEffectiveMs}ms ${config.motionEasing} infinite;}`,
     `.uif-motion[data-animation='soft-drift']{animation:uif-soft-drift ${motionDurationEffectiveMs}ms ${config.motionEasing} infinite;}`,
+    ".uif-depth-shell{position:relative;display:inline-flex;transform-style:preserve-3d;}",
+    `.uif-depth-shell[data-depth-animation='rock']{animation:uif-depth-rock ${motionDurationEffectiveMs}ms ${config.motionEasing} infinite;}`,
+    `.uif-depth-shell[data-depth-animation='orbit']{animation:uif-depth-orbit ${Math.round(motionDurationEffectiveMs * 1.18)}ms ${config.motionEasing} infinite;}`,
+    `.uif-depth-shell[data-depth-animation='gyro']{animation:uif-depth-gyro ${Math.round(motionDurationEffectiveMs * 1.06)}ms ${config.motionEasing} infinite;}`,
+    `.uif-depth-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${config.motionEasing} infinite;}`,
     `.uif-shell{position:relative;display:inline-flex;transition:transform ${config.shellTransitionMs}ms ${config.shellTransitionEase};transform-style:preserve-3d;}`,
-    `.uif-shell[data-depth-animation='rock']{animation:uif-depth-rock ${motionDurationEffectiveMs}ms ${config.motionEasing} infinite;}`,
-    `.uif-shell[data-depth-animation='orbit']{animation:uif-depth-orbit ${Math.round(motionDurationEffectiveMs * 1.18)}ms ${config.motionEasing} infinite;}`,
-    `.uif-shell[data-depth-animation='gyro']{animation:uif-depth-gyro ${Math.round(motionDurationEffectiveMs * 1.06)}ms ${config.motionEasing} infinite;}`,
-    `.uif-shell[data-depth-animation='tilt-cycle']{animation:uif-depth-tilt-cycle ${Math.round(motionDurationEffectiveMs * 0.92)}ms ${config.motionEasing} infinite;}`,
-    ".uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;}",
+    ".uif-click-host{position:absolute;inset:-96px;pointer-events:none;overflow:visible;z-index:4;}",
+    ".uif-btn{position:relative;display:flex;outline:none;overflow:hidden;user-select:none;box-sizing:border-box;-webkit-font-smoothing:antialiased;z-index:1;}",
     `.uif-btn[data-animation='cyber-glitch']{animation:uif-cyber-glitch ${Math.max(900, Math.round(motionDurationEffectiveMs * 0.7))}ms steps(1) infinite;}`,
     ".uif-content{position:relative;z-index:1;display:flex;align-items:center;gap:inherit;}",
     ".uif-icon{display:flex;align-items:center;justify-content:center;flex-shrink:0;}",
@@ -689,7 +699,7 @@ const buildSharedCss = (config: NormalizedConfig) => {
     ".uif-ripple{position:absolute;width:18px;height:18px;border-radius:999px;background:currentColor;opacity:.3;pointer-events:none;transform:translate(-50%,-50%);animation:ripple .65s ease-out forwards;}",
     ".uif-burst-particle{position:absolute;left:var(--origin-x,50%);top:var(--origin-y,50%);width:6px;height:12px;border-radius:999px;pointer-events:none;animation:burst .72s ease-out forwards;}",
     ".uif-btn:disabled{cursor:not-allowed;}",
-    "@media (prefers-reduced-motion: reduce){.uif-motion,.uif-shell,.uif-btn,.uif-label,.uif-label-char,.uif-ambient-glow,.uif-ambient-sheen,.uif-ambient-aurora,.uif-ripple,.uif-burst-particle,.uif-icon{animation:none!important;transition-duration:0.01ms!important;}}",
+    "@media (prefers-reduced-motion: reduce){.uif-motion,.uif-depth-shell,.uif-shell,.uif-btn,.uif-label,.uif-label-char,.uif-ambient-glow,.uif-ambient-sheen,.uif-ambient-aurora,.uif-ripple,.uif-burst-particle,.uif-icon{animation:none!important;transition-duration:0.01ms!important;}}",
   ]
     .filter(Boolean)
     .join("");
@@ -722,31 +732,49 @@ function resolveAriaBusy(value, loading) {
   return undefined;
 }
 
-function spawnBurst(node, event, mode, colors, particleCount) {
-  if (!node) return;
+function spawnBurst(node, event, profile, colors) {
+  if (!node || profile.kind !== "burst") return;
 
   const rect = node.getBoundingClientRect();
   const originX = event.clientX - rect.left;
   const originY = event.clientY - rect.top;
-  const total = mode === "explosion" ? Math.max(particleCount, 36) : particleCount;
+  const total = profile.particleCount;
 
   for (let index = 0; index < total; index += 1) {
     const particle = document.createElement("span");
-    const angle = (Math.PI * 2 * index) / total + Math.random() * 0.45;
-    const distance = mode === "explosion" ? 90 + Math.random() * 60 : 56 + Math.random() * 34;
+    const angle =
+      (Math.PI * 2 * index) / total +
+      (Math.random() - 0.5) * profile.angleJitter;
+    const distance =
+      profile.distanceMin +
+      Math.random() * (profile.distanceMax - profile.distanceMin);
+    const width =
+      profile.widthMin + Math.random() * (profile.widthMax - profile.widthMin);
+    const height =
+      profile.heightMin + Math.random() * (profile.heightMax - profile.heightMin);
 
     particle.className = "uif-burst-particle";
     particle.style.setProperty("--origin-x", originX + "px");
     particle.style.setProperty("--origin-y", originY + "px");
     particle.style.setProperty("--dx", Math.cos(angle) * distance + "px");
     particle.style.setProperty("--dy", Math.sin(angle) * distance + "px");
-    particle.style.setProperty("--rot", (Math.random() - 0.5) * 540 + "deg");
-    particle.style.setProperty("--scale", String(0.6 + Math.random() * 1.1));
+    particle.style.setProperty(
+      "--rot",
+      (Math.random() - 0.5) * profile.rotationJitter + "deg",
+    );
+    particle.style.setProperty(
+      "--scale",
+      String(
+        profile.scaleMin +
+          Math.random() * (profile.scaleMax - profile.scaleMin),
+      ),
+    );
     particle.style.background = colors[index % colors.length];
-    particle.style.width = (mode === "explosion" ? 7 : 5) + "px";
-    particle.style.height = (mode === "explosion" ? 13 : 10) + "px";
+    particle.style.width = width + "px";
+    particle.style.height = height + "px";
+    particle.style.borderRadius = profile.borderRadius;
     node.appendChild(particle);
-    window.setTimeout(() => particle.remove(), 760);
+    window.setTimeout(() => particle.remove(), profile.durationMs);
   }
 }
 
@@ -756,7 +784,9 @@ export default function ${componentName}({
   loading = CONFIG.loading,
   className = "",
 }) {
-  const shellRefs = useRef([]);
+  const depthShellRefs = useRef([]);
+  const interactionRefs = useRef([]);
+  const effectHostRefs = useRef([]);
   const buttonRefs = useRef([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -768,7 +798,7 @@ export default function ${componentName}({
   const resolvedDepthAnimation = isDisabled ? "none" : CONFIG.depthAnimation;
 
   const resetShell = (index) => {
-    const shell = shellRefs.current[index];
+    const shell = interactionRefs.current[index];
     if (shell) {
       shell.style.transform = "";
     }
@@ -776,7 +806,7 @@ export default function ${componentName}({
 
   const updatePointer = (event, index) => {
     const button = buttonRefs.current[index];
-    const shell = shellRefs.current[index];
+    const shell = interactionRefs.current[index];
     if (!button) return;
 
     const rect = button.getBoundingClientRect();
@@ -815,12 +845,13 @@ export default function ${componentName}({
   };
 
   const triggerClickEffect = (event, index) => {
-    if (isDisabled || CONFIG.clickEffect === "none") return;
+    if (isDisabled || CONFIG.clickEffectProfile.kind === "none") return;
 
     const button = buttonRefs.current[index];
+    const effectHost = effectHostRefs.current[index];
     if (!button) return;
 
-    if (CONFIG.clickEffect === "ripple") {
+    if (CONFIG.clickEffectProfile.kind === "ripple") {
       const rect = button.getBoundingClientRect();
       const ripple = document.createElement("span");
       ripple.className = "uif-ripple";
@@ -831,7 +862,7 @@ export default function ${componentName}({
       return;
     }
 
-    spawnBurst(button, event, CONFIG.clickEffect, CONFIG.burstColors, CONFIG.particleCount);
+    spawnBurst(effectHost, event, CONFIG.clickEffectProfile, CONFIG.burstColors);
   };
 
   const getStyleSnapshot = (hovered, active) => {
@@ -988,132 +1019,146 @@ export default function ${componentName}({
             return (
               <div key={index} className="uif-motion" data-animation={resolvedAnimation}>
                 <div
-                  className="uif-shell"
+                  className="uif-depth-shell"
                   data-depth-animation={resolvedDepthAnimation}
                   ref={(node) => {
-                    shellRefs.current[index] = node;
+                    depthShellRefs.current[index] = node;
                   }}
                 >
-                  <button
+                  <div
+                    className="uif-shell"
                     ref={(node) => {
-                      buttonRefs.current[index] = node;
+                      interactionRefs.current[index] = node;
                     }}
-                    type="button"
-                    className={buttonClassName}
-                    data-animation={resolvedAnimation}
-                    data-hovered={hovered ? "true" : "false"}
-                    style={{
-                      width: CONFIG.width,
-                      height: CONFIG.height,
-                      padding: CONFIG.paddingY + " " + CONFIG.paddingX,
-                      gap: CONFIG.gap,
-                      borderStyle: "solid",
-                      borderRadius,
-                      fontFamily: CONFIG.fontFamily,
-                      fontSize: CONFIG.fontSize,
-                      fontWeight: CONFIG.fontWeight,
-                      fontStyle: CONFIG.fontStyle,
-                      textTransform: CONFIG.textTransform,
-                      textDecoration: CONFIG.textDecoration,
-                      letterSpacing: CONFIG.letterSpacing,
-                      lineHeight: CONFIG.lineHeight,
-                      alignItems: CONFIG.alignItems,
-                      justifyContent: CONFIG.justifyContent,
-                      cursor: loading ? "wait" : isDisabled ? CONFIG.disabledCursor : "pointer",
-                      opacity: isDisabled ? CONFIG.disabledOpacity : 1,
-                      transition:
-                        "background " +
-                        CONFIG.transitionMs +
-                        "ms " +
-                        CONFIG.transitionEasing +
-                        ", color " +
-                        CONFIG.transitionMs +
-                        "ms " +
-                        CONFIG.transitionEasing +
-                        ", border-color " +
-                        CONFIG.transitionMs +
-                        "ms " +
-                        CONFIG.transitionEasing +
-                        ", box-shadow " +
-                        CONFIG.transitionMs +
-                        "ms " +
-                        CONFIG.transitionEasing +
-                        ", filter " +
-                        CONFIG.transitionMs +
-                        "ms " +
-                        CONFIG.transitionEasing +
-                        ", transform " +
-                        CONFIG.transformTransitionMs +
-                        "ms " +
-                        CONFIG.transformTransitionEasing +
-                        ", border-radius " +
-                        CONFIG.transformTransitionMs +
-                        "ms " +
-                        CONFIG.transformTransitionEasing,
-                      backdropFilter: "blur(" + CONFIG.backdropBlur + ")",
-                      WebkitBackdropFilter: "blur(" + CONFIG.backdropBlur + ")",
-                      ...dynamicStyle,
-                      transform: dynamicTransform,
-                    }}
-                    disabled={isDisabled}
-                    onMouseEnter={() => {
-                      if (!isDisabled && CONFIG.hoverEnabled) {
-                        setHoveredIndex(index);
-                      }
-                    }}
-                    onMouseLeave={() => {
-                      setHoveredIndex(-1);
-                      setActiveIndex(-1);
-                      resetShell(index);
-                    }}
-                    onMouseMove={(event) => updatePointer(event, index)}
-                    onMouseDown={() => {
-                      if (!isDisabled && CONFIG.activeEnabled) {
-                        setActiveIndex(index);
-                      }
-                    }}
-                    onMouseUp={() => setActiveIndex(-1)}
-                    onFocus={() => setFocusedIndex(index)}
-                    onBlur={() => setFocusedIndex(-1)}
-                    onClick={(event) => {
-                      if (isDisabled) return;
-                      onClick(event, index);
-                      triggerClickEffect(event, index);
-                    }}
-                    aria-label={CONFIG.accessibility.ariaLabel}
-                    aria-pressed={resolveAriaPressed(CONFIG.accessibility.ariaPressed)}
-                    aria-busy={resolveAriaBusy(CONFIG.accessibility.ariaBusy, loading)}
                   >
-                    <div className="uif-ambient-layer uif-ambient-glow" aria-hidden="true" />
-                    <div className="uif-ambient-layer uif-ambient-sheen" aria-hidden="true" />
-                    <div className="uif-ambient-layer uif-ambient-aurora" aria-hidden="true" />
-                    {CONFIG.topGradient !== "none" ? (
-                      <div
-                        className="uif-top-gradient"
-                        aria-hidden="true"
-                        style={{ background: CONFIG.topGradient }}
-                      />
-                    ) : null}
-                    {CONFIG.parallaxEnabled ? (
-                      <div className="uif-parallax-glow" aria-hidden="true" />
-                    ) : null}
-                    {CONFIG.hoverEffect === "spotlight" ? (
-                      <div className="uif-spotlight" aria-hidden="true" />
-                    ) : null}
-                    {hovered ? renderSparkles() : null}
-                    <span
-                      className="uif-content"
-                      style={{ flexDirection: iconFirst ? "row" : "row-reverse" }}
+                    <div
+                      className="uif-click-host"
+                      aria-hidden="true"
+                      ref={(node) => {
+                        effectHostRefs.current[index] = node;
+                      }}
+                    />
+                    <button
+                      ref={(node) => {
+                        buttonRefs.current[index] = node;
+                      }}
+                      type="button"
+                      className={buttonClassName}
+                      data-animation={resolvedAnimation}
+                      data-hovered={hovered ? "true" : "false"}
+                      style={{
+                        width: CONFIG.width,
+                        height: CONFIG.height,
+                        padding: CONFIG.paddingY + " " + CONFIG.paddingX,
+                        gap: CONFIG.gap,
+                        borderStyle: "solid",
+                        borderRadius,
+                        fontFamily: CONFIG.fontFamily,
+                        fontSize: CONFIG.fontSize,
+                        fontWeight: CONFIG.fontWeight,
+                        fontStyle: CONFIG.fontStyle,
+                        textTransform: CONFIG.textTransform,
+                        textDecoration: CONFIG.textDecoration,
+                        letterSpacing: CONFIG.letterSpacing,
+                        lineHeight: CONFIG.lineHeight,
+                        alignItems: CONFIG.alignItems,
+                        justifyContent: CONFIG.justifyContent,
+                        cursor: loading ? "wait" : isDisabled ? CONFIG.disabledCursor : "pointer",
+                        opacity: isDisabled ? CONFIG.disabledOpacity : 1,
+                        transition:
+                          "background " +
+                          CONFIG.transitionMs +
+                          "ms " +
+                          CONFIG.transitionEasing +
+                          ", color " +
+                          CONFIG.transitionMs +
+                          "ms " +
+                          CONFIG.transitionEasing +
+                          ", border-color " +
+                          CONFIG.transitionMs +
+                          "ms " +
+                          CONFIG.transitionEasing +
+                          ", box-shadow " +
+                          CONFIG.transitionMs +
+                          "ms " +
+                          CONFIG.transitionEasing +
+                          ", filter " +
+                          CONFIG.transitionMs +
+                          "ms " +
+                          CONFIG.transitionEasing +
+                          ", transform " +
+                          CONFIG.transformTransitionMs +
+                          "ms " +
+                          CONFIG.transformTransitionEasing +
+                          ", border-radius " +
+                          CONFIG.transformTransitionMs +
+                          "ms " +
+                          CONFIG.transformTransitionEasing,
+                        backdropFilter: "blur(" + CONFIG.backdropBlur + ")",
+                        WebkitBackdropFilter: "blur(" + CONFIG.backdropBlur + ")",
+                        ...dynamicStyle,
+                        transform: dynamicTransform,
+                      }}
+                      disabled={isDisabled}
+                      onMouseEnter={() => {
+                        if (!isDisabled && CONFIG.hoverEnabled) {
+                          setHoveredIndex(index);
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        setHoveredIndex(-1);
+                        setActiveIndex(-1);
+                        resetShell(index);
+                      }}
+                      onMouseMove={(event) => updatePointer(event, index)}
+                      onMouseDown={() => {
+                        if (!isDisabled && CONFIG.activeEnabled) {
+                          setActiveIndex(index);
+                        }
+                      }}
+                      onMouseUp={() => setActiveIndex(-1)}
+                      onFocus={() => setFocusedIndex(index)}
+                      onBlur={() => setFocusedIndex(-1)}
+                      onClick={(event) => {
+                        if (isDisabled) return;
+                        onClick(event, index);
+                        triggerClickEffect(event, index);
+                      }}
+                      aria-label={CONFIG.accessibility.ariaLabel}
+                      aria-pressed={resolveAriaPressed(CONFIG.accessibility.ariaPressed)}
+                      aria-busy={resolveAriaBusy(CONFIG.accessibility.ariaBusy, loading)}
                     >
-                      {iconNode}
+                      <div className="uif-ambient-layer uif-ambient-glow" aria-hidden="true" />
+                      <div className="uif-ambient-layer uif-ambient-sheen" aria-hidden="true" />
+                      <div className="uif-ambient-layer uif-ambient-aurora" aria-hidden="true" />
+                      {CONFIG.topGradient !== "none" ? (
+                        <div
+                          className="uif-top-gradient"
+                          aria-hidden="true"
+                          style={{ background: CONFIG.topGradient }}
+                        />
+                      ) : null}
+                      {CONFIG.parallaxEnabled ? (
+                        <div className="uif-parallax-glow" aria-hidden="true" />
+                      ) : null}
+                      {CONFIG.hoverEffect === "spotlight" ? (
+                        <div className="uif-spotlight" aria-hidden="true" />
+                      ) : null}
+                      {hovered ? renderSparkles() : null}
                       <span
-                        className="uif-label"
-                        data-text-animation={resolvedTextAnimation}
+                        className="uif-content"
+                        style={{ flexDirection: iconFirst ? "row" : "row-reverse" }}
                       >
-                        {renderLabelContent(loading ? CONFIG.loadingLabel : CONFIG.label)}
+                        {iconNode}
+                        <span
+                          className="uif-label"
+                          data-text-animation={resolvedTextAnimation}
+                        >
+                          {renderLabelContent(loading ? CONFIG.loadingLabel : CONFIG.label)}
+                        </span>
                       </span>
-                    </span>
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -1152,7 +1197,9 @@ const buildHtmlContent = (config: NormalizedConfig) => {
       const buttonIndexes = CONFIG.groupEnabled ? [0, 1, 2] : [0];
       const state = { hoveredIndex: -1, activeIndex: -1, focusedIndex: -1 };
       const motionNodes = [];
-      const shellNodes = [];
+      const depthShellNodes = [];
+      const interactionNodes = [];
+      const effectHostNodes = [];
       const buttonNodes = [];
 
       function resolveAriaPressed(value) {
@@ -1236,13 +1283,13 @@ const buildHtmlContent = (config: NormalizedConfig) => {
       }
 
       function resetShell(index) {
-        const shell = shellNodes[index];
+        const shell = interactionNodes[index];
         if (shell) shell.style.transform = "";
       }
 
       function updatePointer(event, index) {
         const button = buttonNodes[index];
-        const shell = shellNodes[index];
+        const shell = interactionNodes[index];
         if (!button) return;
 
         const rect = button.getBoundingClientRect();
@@ -1280,41 +1327,60 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         }
       }
 
-      function spawnBurst(node, event, mode) {
-        if (!node) return;
+      function spawnBurst(node, event, profile) {
+        if (!node || profile.kind !== "burst") return;
 
         const rect = node.getBoundingClientRect();
         const originX = event.clientX - rect.left;
         const originY = event.clientY - rect.top;
-        const total = mode === "explosion" ? Math.max(CONFIG.particleCount, 36) : CONFIG.particleCount;
+        const total = profile.particleCount;
 
         for (let index = 0; index < total; index += 1) {
           const particle = document.createElement("span");
-          const angle = (Math.PI * 2 * index) / total + Math.random() * 0.45;
-          const distance = mode === "explosion" ? 90 + Math.random() * 60 : 56 + Math.random() * 34;
+          const angle =
+            (Math.PI * 2 * index) / total +
+            (Math.random() - 0.5) * profile.angleJitter;
+          const distance =
+            profile.distanceMin +
+            Math.random() * (profile.distanceMax - profile.distanceMin);
+          const width =
+            profile.widthMin + Math.random() * (profile.widthMax - profile.widthMin);
+          const height =
+            profile.heightMin + Math.random() * (profile.heightMax - profile.heightMin);
 
           particle.className = "uif-burst-particle";
           particle.style.setProperty("--origin-x", originX + "px");
           particle.style.setProperty("--origin-y", originY + "px");
           particle.style.setProperty("--dx", Math.cos(angle) * distance + "px");
           particle.style.setProperty("--dy", Math.sin(angle) * distance + "px");
-          particle.style.setProperty("--rot", (Math.random() - 0.5) * 540 + "deg");
-          particle.style.setProperty("--scale", String(0.6 + Math.random() * 1.1));
+          particle.style.setProperty(
+            "--rot",
+            (Math.random() - 0.5) * profile.rotationJitter + "deg"
+          );
+          particle.style.setProperty(
+            "--scale",
+            String(
+              profile.scaleMin +
+                Math.random() * (profile.scaleMax - profile.scaleMin)
+            )
+          );
           particle.style.background = CONFIG.burstColors[index % CONFIG.burstColors.length];
-          particle.style.width = (mode === "explosion" ? 7 : 5) + "px";
-          particle.style.height = (mode === "explosion" ? 13 : 10) + "px";
+          particle.style.width = width + "px";
+          particle.style.height = height + "px";
+          particle.style.borderRadius = profile.borderRadius;
           node.appendChild(particle);
-          window.setTimeout(() => particle.remove(), 760);
+          window.setTimeout(() => particle.remove(), profile.durationMs);
         }
       }
 
       function triggerClickEffect(event, index) {
-        if (CONFIG.disabled || CONFIG.loading || CONFIG.clickEffect === "none") return;
+        if (CONFIG.disabled || CONFIG.loading || CONFIG.clickEffectProfile.kind === "none") return;
 
         const button = buttonNodes[index];
+        const effectHost = effectHostNodes[index];
         if (!button) return;
 
-        if (CONFIG.clickEffect === "ripple") {
+        if (CONFIG.clickEffectProfile.kind === "ripple") {
           const rect = button.getBoundingClientRect();
           const ripple = document.createElement("span");
           ripple.className = "uif-ripple";
@@ -1325,7 +1391,7 @@ const buildHtmlContent = (config: NormalizedConfig) => {
           return;
         }
 
-        spawnBurst(button, event, CONFIG.clickEffect);
+        spawnBurst(effectHost, event, CONFIG.clickEffectProfile);
       }
 
       function renderButton(index) {
@@ -1419,8 +1485,8 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         if (motionNodes[index]) {
           motionNodes[index].setAttribute("data-animation", resolvedAnimation);
         }
-        if (shellNodes[index]) {
-          shellNodes[index].setAttribute("data-depth-animation", resolvedDepthAnimation);
+        if (depthShellNodes[index]) {
+          depthShellNodes[index].setAttribute("data-depth-animation", resolvedDepthAnimation);
         }
 
         const pressed = resolveAriaPressed(CONFIG.accessibility.ariaPressed);
@@ -1532,16 +1598,23 @@ const buildHtmlContent = (config: NormalizedConfig) => {
         const motion = document.createElement("div");
         motion.className = "uif-motion";
         motion.setAttribute("data-animation", CONFIG.animation);
-        const shell = document.createElement("div");
-        shell.className = "uif-shell";
-        shell.setAttribute("data-depth-animation", CONFIG.depthAnimation);
+        const depthShell = document.createElement("div");
+        depthShell.className = "uif-depth-shell";
+        depthShell.setAttribute("data-depth-animation", CONFIG.depthAnimation);
+        const interactionShell = document.createElement("div");
+        interactionShell.className = "uif-shell";
+        const effectHost = document.createElement("div");
+        effectHost.className = "uif-click-host";
+        effectHost.setAttribute("aria-hidden", "true");
         const button = document.createElement("button");
         button.type = "button";
         button.className = "uif-btn";
         button.setAttribute("data-animation", CONFIG.animation);
 
         motionNodes[index] = motion;
-        shellNodes[index] = shell;
+        depthShellNodes[index] = depthShell;
+        interactionNodes[index] = interactionShell;
+        effectHostNodes[index] = effectHost;
         buttonNodes[index] = button;
 
         button.addEventListener("mouseenter", () => {
@@ -1580,8 +1653,10 @@ const buildHtmlContent = (config: NormalizedConfig) => {
           triggerClickEffect(event, index);
         });
 
-        shell.appendChild(button);
-        motion.appendChild(shell);
+        interactionShell.appendChild(effectHost);
+        interactionShell.appendChild(button);
+        depthShell.appendChild(interactionShell);
+        motion.appendChild(depthShell);
         groupNode.appendChild(motion);
       });
 

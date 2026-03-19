@@ -17,11 +17,13 @@ type PresetMood = {
   id: string;
   name: string;
   label: string;
+  summaryTone: string;
+  styleTags: string[];
   buttonAnimation: ActionButtonState["animation"];
   textAnimation: ActionButtonState["textAnimation"];
   depthAnimation: ActionButtonState["depthAnimation"];
-  hoverEffect: string;
-  clickEffect: string;
+  hoverEffect: ActionButtonState["hoverEffect"];
+  clickEffect: ActionButtonState["clickEffect"];
   iconName: ActionButtonState["iconName"];
   hoverIconName: ActionButtonState["hoverIconName"];
   activeIconName: ActionButtonState["activeIconName"];
@@ -233,6 +235,8 @@ const MOODS: PresetMood[] = [
     id: "calm",
     name: "Calm",
     label: "Continue",
+    summaryTone: "quiet product UI",
+    styleTags: ["minimal", "calm", "product", "clean"],
     buttonAnimation: "breathe",
     textAnimation: "none",
     depthAnimation: "none",
@@ -263,6 +267,8 @@ const MOODS: PresetMood[] = [
     id: "luxe",
     name: "Luxe",
     label: "Reserve",
+    summaryTone: "editorial luxe motion",
+    styleTags: ["premium", "luxe", "editorial", "sheen"],
     buttonAnimation: "sheen",
     textAnimation: "shimmer",
     depthAnimation: "orbit",
@@ -293,6 +299,8 @@ const MOODS: PresetMood[] = [
     id: "aurora",
     name: "Aurora",
     label: "Explore",
+    summaryTone: "aurora-lit gradient",
+    styleTags: ["aurora", "gradient", "ambient", "premium"],
     buttonAnimation: "aurora",
     textAnimation: "wave",
     depthAnimation: "tilt-cycle",
@@ -323,6 +331,8 @@ const MOODS: PresetMood[] = [
     id: "playful",
     name: "Playful",
     label: "Try It",
+    summaryTone: "friendly expressive",
+    styleTags: ["playful", "friendly", "expressive", "bouncy"],
     buttonAnimation: "soft-drift",
     textAnimation: "bounce",
     depthAnimation: "rock",
@@ -353,6 +363,8 @@ const MOODS: PresetMood[] = [
     id: "neon",
     name: "Neon",
     label: "Launch",
+    summaryTone: "luminous glow-heavy",
+    styleTags: ["neon", "glow", "cta", "vivid"],
     buttonAnimation: "neon-pulse",
     textAnimation: "flicker",
     depthAnimation: "orbit",
@@ -383,6 +395,8 @@ const MOODS: PresetMood[] = [
     id: "cyber",
     name: "Cyber",
     label: "Deploy",
+    summaryTone: "cyberpunk glitch",
+    styleTags: ["cyber", "glitch", "tech", "high-contrast"],
     buttonAnimation: "cyber-glitch",
     textAnimation: "glitch",
     depthAnimation: "gyro",
@@ -408,6 +422,198 @@ const MOODS: PresetMood[] = [
     glossEnabled: false,
     bevelEnabled: true,
     iconEmbossMode: "inset",
+  },
+  {
+    id: "glass",
+    name: "Glass",
+    label: "Unlock",
+    summaryTone: "glassmorphism-inspired translucent",
+    styleTags: ["glass", "translucent", "liquid", "premium"],
+    buttonAnimation: "soft-glow",
+    textAnimation: "none",
+    depthAnimation: "orbit",
+    hoverEffect: "spotlight",
+    clickEffect: "ripple",
+    iconName: "arrowRight",
+    hoverIconName: "star",
+    activeIconName: "check",
+    googleFontFamily: "Plus Jakarta Sans",
+    animationDurationText: "4800",
+    animationSpeedText: "92",
+    animationIntensityText: "20",
+    animationEasing: "ease-in-out",
+    textAnimationStaggerText: "90",
+    transitionColorDurationText: "180",
+    transitionTransformDurationText: "140",
+    hoverSpringStiffness: "290",
+    hoverSpringDamping: "22",
+    hoverBgModeSolid: "gradient",
+    activeBgModeSolid: "gradient",
+    topGradientEnabled: true,
+    parallaxHighlightEnabled: true,
+    glossEnabled: true,
+    bevelEnabled: true,
+    iconEmbossMode: "raised",
+  },
+  {
+    id: "editorial",
+    name: "Editorial",
+    label: "Read More",
+    summaryTone: "editorial minimal",
+    styleTags: ["editorial", "minimal", "serif", "refined"],
+    buttonAnimation: "none",
+    textAnimation: "none",
+    depthAnimation: "none",
+    hoverEffect: "none",
+    clickEffect: "ripple",
+    iconName: "none",
+    hoverIconName: "none",
+    activeIconName: "none",
+    googleFontFamily: "DM Serif Display",
+    animationDurationText: "4200",
+    animationSpeedText: "85",
+    animationIntensityText: "10",
+    animationEasing: "ease",
+    textAnimationStaggerText: "0",
+    transitionColorDurationText: "190",
+    transitionTransformDurationText: "120",
+    hoverSpringStiffness: "240",
+    hoverSpringDamping: "26",
+    hoverBgModeSolid: "auto",
+    activeBgModeSolid: "same",
+    topGradientEnabled: false,
+    parallaxHighlightEnabled: false,
+    glossEnabled: false,
+    bevelEnabled: false,
+    iconEmbossMode: "off",
+  },
+  {
+    id: "tactile",
+    name: "Tactile",
+    label: "Tap In",
+    summaryTone: "soft tactile depth",
+    styleTags: ["tactile", "soft-ui", "pill", "depth"],
+    buttonAnimation: "breathe",
+    textAnimation: "none",
+    depthAnimation: "rock",
+    hoverEffect: "morph",
+    clickEffect: "ripple",
+    iconName: "plus",
+    hoverIconName: "star",
+    activeIconName: "check",
+    googleFontFamily: "Manrope",
+    animationDurationText: "3900",
+    animationSpeedText: "100",
+    animationIntensityText: "24",
+    animationEasing: "ease-in-out",
+    textAnimationStaggerText: "60",
+    transitionColorDurationText: "170",
+    transitionTransformDurationText: "130",
+    hoverSpringStiffness: "300",
+    hoverSpringDamping: "18",
+    hoverBgModeSolid: "gradient",
+    activeBgModeSolid: "gradient",
+    topGradientEnabled: true,
+    parallaxHighlightEnabled: false,
+    glossEnabled: true,
+    bevelEnabled: true,
+    iconEmbossMode: "raised",
+  },
+  {
+    id: "chrome",
+    name: "Chrome",
+    label: "Preview",
+    summaryTone: "metallic chrome",
+    styleTags: ["chrome", "metal", "reflective", "sleek"],
+    buttonAnimation: "sheen",
+    textAnimation: "shimmer",
+    depthAnimation: "tilt-cycle",
+    hoverEffect: "tilt",
+    clickEffect: "ripple",
+    iconName: "star",
+    hoverIconName: "arrowRight",
+    activeIconName: "check",
+    googleFontFamily: "Syne",
+    animationDurationText: "5000",
+    animationSpeedText: "98",
+    animationIntensityText: "24",
+    animationEasing: "ease-in-out",
+    textAnimationStaggerText: "110",
+    transitionColorDurationText: "180",
+    transitionTransformDurationText: "145",
+    hoverSpringStiffness: "270",
+    hoverSpringDamping: "18",
+    hoverBgModeSolid: "gradient",
+    activeBgModeSolid: "gradient",
+    topGradientEnabled: true,
+    parallaxHighlightEnabled: true,
+    glossEnabled: true,
+    bevelEnabled: true,
+    iconEmbossMode: "raised",
+  },
+  {
+    id: "brutalist",
+    name: "Brutalist",
+    label: "Buy Now",
+    summaryTone: "bold poster-like",
+    styleTags: ["brutalist", "poster", "bold", "graphic"],
+    buttonAnimation: "none",
+    textAnimation: "none",
+    depthAnimation: "rock",
+    hoverEffect: "tilt",
+    clickEffect: "explosion",
+    iconName: "plus",
+    hoverIconName: "x",
+    activeIconName: "check",
+    googleFontFamily: "Bebas Neue",
+    animationDurationText: "2600",
+    animationSpeedText: "118",
+    animationIntensityText: "30",
+    animationEasing: "ease-out",
+    textAnimationStaggerText: "0",
+    transitionColorDurationText: "120",
+    transitionTransformDurationText: "90",
+    hoverSpringStiffness: "330",
+    hoverSpringDamping: "14",
+    hoverBgModeSolid: "custom",
+    activeBgModeSolid: "custom",
+    topGradientEnabled: false,
+    parallaxHighlightEnabled: false,
+    glossEnabled: false,
+    bevelEnabled: false,
+    iconEmbossMode: "off",
+  },
+  {
+    id: "velvet",
+    name: "Velvet",
+    label: "Enter",
+    summaryTone: "dark velvet glow",
+    styleTags: ["velvet", "cinematic", "dark", "luxury"],
+    buttonAnimation: "soft-glow",
+    textAnimation: "shimmer",
+    depthAnimation: "orbit",
+    hoverEffect: "spotlight",
+    clickEffect: "ripple",
+    iconName: "star",
+    hoverIconName: "arrowRight",
+    activeIconName: "check",
+    googleFontFamily: "Cormorant Garamond",
+    animationDurationText: "5400",
+    animationSpeedText: "94",
+    animationIntensityText: "24",
+    animationEasing: "ease-in-out",
+    textAnimationStaggerText: "120",
+    transitionColorDurationText: "190",
+    transitionTransformDurationText: "150",
+    hoverSpringStiffness: "255",
+    hoverSpringDamping: "20",
+    hoverBgModeSolid: "gradient",
+    activeBgModeSolid: "gradient",
+    topGradientEnabled: true,
+    parallaxHighlightEnabled: true,
+    glossEnabled: true,
+    bevelEnabled: true,
+    iconEmbossMode: "raised",
   },
 ];
 
@@ -452,6 +658,295 @@ const VARIANT_LABELS: Record<ActionButtonState["variant"], string> = {
 
 function makeHoverBackground(theme: PresetTheme, alpha: number) {
   return hexWithAlpha(theme.accent, alpha);
+}
+
+function setAllRadii(state: ActionButtonState, value: string) {
+  state.radiusText = value;
+  state.radiusTLText = value;
+  state.radiusTRText = value;
+  state.radiusBRText = value;
+  state.radiusBLText = value;
+}
+
+function applyMoodArtDirection(
+  theme: PresetTheme,
+  mood: PresetMood,
+  size: PresetSize,
+  variant: ActionButtonState["variant"],
+  state: ActionButtonState,
+) {
+  state.shadowTemp = "neutral";
+  state.lightDirection = "top-left";
+  state.materialPreset = "custom";
+  state.rimLightEnabled = false;
+  state.edgeGradientEnabled = false;
+  state.backdropBlurEnabled = false;
+  state.baseShadowEnabled = state.elevationPreset !== "flat";
+  state.baseShadowSizeText = size.id === "hero" ? "20" : "12";
+  state.baseShadowOpacityText = variant === "solid" ? "0.18" : "0.12";
+  state.borderDepthMode = "none";
+  state.borderDepthSizeText = "2";
+  state.edgeThicknessText = "0";
+  state.edgeGradientSizeText = "3";
+  state.edgeGradientStrengthText = "0.24";
+  state.rimLightColorInput = theme.end;
+  state.rimLightSizeText = size.id === "hero" ? "14" : "10";
+  state.rimLightOpacityText = "0.16";
+  state.specularStrengthText = "0.45";
+  state.roughnessText = "0.28";
+  state.aoStrengthText = "0.12";
+  state.baseShadowEnabled = variant !== "ghost";
+  state.hoverLiftText = mood.id === "playful" || mood.id === "tactile" ? "4" : "2";
+  state.pressedInsetEnabled = variant === "solid" && mood.id !== "calm";
+  state.pressedDepthText = mood.id === "brutalist" ? "1" : "2";
+
+  switch (mood.id) {
+    case "calm":
+      state.materialPreset = "matte";
+      state.baseShadowEnabled = variant === "solid";
+      state.baseShadowSizeText = size.id === "hero" ? "12" : "8";
+      state.baseShadowOpacityText = "0.12";
+      break;
+    case "luxe":
+      state.shadowTemp = "warm";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "22" : "14";
+      state.baseShadowOpacityText = "0.2";
+      state.rimLightEnabled = variant === "solid";
+      state.rimLightOpacityText = "0.18";
+      state.borderDepthMode = variant === "outline" ? "raised" : "none";
+      state.edgeGradientEnabled = variant === "solid";
+      state.specularStrengthText = "0.62";
+      state.roughnessText = "0.22";
+      break;
+    case "aurora":
+      state.rimLightEnabled = true;
+      state.rimLightColorInput = theme.ring;
+      state.rimLightOpacityText = "0.22";
+      state.rimLightSizeText = size.id === "hero" ? "18" : "12";
+      state.edgeGradientEnabled = variant === "solid";
+      state.edgeGradientStrengthText = "0.28";
+      state.specularStrengthText = "0.55";
+      state.roughnessText = "0.18";
+      break;
+    case "playful":
+      state.materialPreset = "plastic";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "18" : "12";
+      state.baseShadowOpacityText = "0.18";
+      setAllRadii(state, "999");
+      state.borderDepthMode = variant === "outline" ? "raised" : "none";
+      state.borderDepthSizeText = "3";
+      break;
+    case "neon":
+      state.rimLightEnabled = true;
+      state.rimLightColorInput = theme.ring;
+      state.rimLightOpacityText = "0.3";
+      state.rimLightSizeText = size.id === "hero" ? "22" : "16";
+      state.edgeGradientEnabled = variant === "solid";
+      state.edgeGradientStrengthText = "0.34";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "24" : "16";
+      state.baseShadowOpacityText = "0.24";
+      state.specularStrengthText = "0.72";
+      state.roughnessText = "0.12";
+      break;
+    case "cyber":
+      state.shadowTemp = "cool";
+      state.lightDirection = "top-right";
+      state.materialPreset = "metal";
+      state.edgeGradientEnabled = variant !== "ghost";
+      state.edgeGradientStrengthText = "0.3";
+      state.borderDepthMode = variant === "solid" ? "raised" : "inset";
+      state.borderDepthSizeText = "2";
+      state.specularStrengthText = "0.76";
+      state.roughnessText = "0.22";
+      state.aoStrengthText = "0.2";
+      break;
+    case "glass":
+      state.shadowTemp = "cool";
+      state.materialPreset = "glass";
+      state.edgeGradientEnabled = true;
+      state.backdropBlurEnabled = true;
+      state.backdropBlurText = size.id === "hero" ? "16" : "12";
+      state.rimLightEnabled = true;
+      state.rimLightColorInput = "#ffffff";
+      state.rimLightOpacityText = "0.22";
+      state.rimLightSizeText = size.id === "hero" ? "18" : "12";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "18" : "12";
+      state.baseShadowOpacityText = "0.12";
+      state.specularStrengthText = "0.5";
+      state.roughnessText = "0.1";
+      if (variant === "solid") {
+        state.useGradient = true;
+        state.gradAngleText = "135";
+        state.gradStartInput = hexWithAlpha("#ffffff", 0.42);
+        state.gradMidEnabled = true;
+        state.gradMidInput = hexWithAlpha(theme.end, 0.26);
+        state.gradEndInput = hexWithAlpha(theme.base, 0.18);
+        state.bgInput = hexWithAlpha("#ffffff", 0.18);
+        state.textInput = pickReadableThemeTone(theme.base, "#ffffff", theme.canvas);
+        state.borderInput = hexWithAlpha("#ffffff", 0.34);
+      } else if (variant === "outline") {
+        state.bgInput = hexWithAlpha("#ffffff", 0.14);
+        state.borderWidthText = "1.5";
+        state.borderInput = hexWithAlpha("#ffffff", 0.5);
+        state.textInput = pickReadableThemeTone(theme.base, theme.accent, theme.canvas);
+        state.hoverBgInput = hexWithAlpha("#ffffff", 0.22);
+        state.activeBgInput = hexWithAlpha(theme.end, 0.24);
+      } else {
+        state.bgInput = hexWithAlpha("#ffffff", 0.1);
+        state.borderWidthText = "1";
+        state.borderInput = hexWithAlpha("#ffffff", 0.22);
+        state.textInput = pickReadableThemeTone(theme.base, theme.accent, theme.canvas);
+        state.hoverBgInput = hexWithAlpha("#ffffff", 0.16);
+        state.activeBgInput = hexWithAlpha(theme.end, 0.18);
+      }
+      break;
+    case "editorial":
+      state.materialPreset = "matte";
+      state.fontWeight = 600;
+      state.letterSpacingText = "0.4";
+      state.textTransform = "none";
+      state.iconName = "none";
+      state.hoverIconEnabled = false;
+      state.activeIconEnabled = false;
+      state.shadowEnabled = variant === "solid";
+      state.shYText = variant === "solid" ? "8" : "0";
+      state.shBlurText = variant === "solid" ? "18" : "0";
+      state.shOpacityText = variant === "solid" ? "0.12" : "0";
+      state.baseShadowEnabled = false;
+      setAllRadii(state, size.id === "hero" ? "10" : "8");
+      if (variant === "solid") {
+        state.useGradient = false;
+        state.bgInput = theme.base;
+        state.textInput = pickReadableTextColor(theme.base);
+        state.borderInput = theme.base;
+      } else if (variant === "outline") {
+        state.borderWidthText = "1";
+        state.borderInput = theme.base;
+        state.textInput = theme.base;
+        state.hoverBgInput = hexWithAlpha(theme.base, 0.06);
+        state.activeBgInput = hexWithAlpha(theme.base, 0.12);
+      } else {
+        state.borderWidthText = "0";
+        state.textInput = theme.base;
+        state.hoverBgInput = hexWithAlpha(theme.base, 0.05);
+        state.activeBgInput = hexWithAlpha(theme.base, 0.1);
+      }
+      break;
+    case "tactile":
+      state.materialPreset = "plastic";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "18" : "12";
+      state.baseShadowOpacityText = "0.18";
+      state.shadowStackEnabled = true;
+      state.stack1Enabled = true;
+      state.stack1XText = "0";
+      state.stack1YText = size.id === "hero" ? "6" : "4";
+      state.stack1BlurText = size.id === "hero" ? "10" : "8";
+      state.stack1SpreadText = "-2";
+      state.stack1OpacityText = "0.16";
+      state.stack2Enabled = true;
+      state.stack2XText = "0";
+      state.stack2YText = size.id === "hero" ? "12" : "8";
+      state.stack2BlurText = size.id === "hero" ? "18" : "14";
+      state.stack2SpreadText = "-4";
+      state.stack2OpacityText = "0.14";
+      setAllRadii(state, "999");
+      state.borderDepthMode = variant === "solid" ? "inset" : "raised";
+      state.borderDepthSizeText = "3";
+      state.pressedInsetEnabled = true;
+      break;
+    case "chrome":
+      state.shadowTemp = "cool";
+      state.lightDirection = "top-right";
+      state.materialPreset = "metal";
+      state.rimLightEnabled = true;
+      state.rimLightColorInput = "#ffffff";
+      state.rimLightOpacityText = "0.24";
+      state.edgeGradientEnabled = true;
+      state.borderDepthMode = variant === "ghost" ? "none" : "raised";
+      state.borderDepthSizeText = "2";
+      state.specularStrengthText = "0.82";
+      state.roughnessText = "0.22";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "18" : "12";
+      state.baseShadowOpacityText = "0.16";
+      if (variant === "solid") {
+        state.useGradient = true;
+        state.gradAngleText = "125";
+        state.gradStartInput = "#f8fafc";
+        state.gradMidEnabled = true;
+        state.gradMidInput = hexWithAlpha(theme.end, 0.75);
+        state.gradEndInput = theme.base;
+        state.bgInput = "#dbe4f0";
+        state.textInput = "#0f172a";
+        state.borderInput = hexWithAlpha("#ffffff", 0.45);
+      }
+      break;
+    case "brutalist":
+      state.materialPreset = "matte";
+      state.fontWeight = 700;
+      state.letterSpacingText = "0.8";
+      state.textTransform = "uppercase";
+      state.shadowEnabled = true;
+      state.shXText = size.id === "hero" ? "4" : "3";
+      state.shYText = size.id === "hero" ? "6" : "4";
+      state.shBlurText = "0";
+      state.shSpreadText = "0";
+      state.shOpacityText = "0.26";
+      state.baseShadowEnabled = false;
+      state.glossEnabled = false;
+      state.bevelEnabled = false;
+      state.edgeGradientEnabled = false;
+      state.rimLightEnabled = false;
+      setAllRadii(state, size.id === "hero" ? "8" : "6");
+      if (variant === "solid") {
+        state.useGradient = false;
+        state.bgInput = theme.base;
+        state.textInput = pickReadableTextColor(theme.base);
+        state.borderWidthText = "3";
+        state.borderInput = theme.base;
+      } else if (variant === "outline") {
+        state.borderWidthText = "3";
+        state.borderInput = theme.base;
+        state.textInput = theme.base;
+      } else {
+        state.borderWidthText = "2";
+        state.borderInput = theme.base;
+        state.textInput = theme.base;
+        state.hoverBgInput = hexWithAlpha(theme.base, 0.08);
+        state.activeBgInput = hexWithAlpha(theme.base, 0.14);
+      }
+      break;
+    case "velvet":
+      state.shadowTemp = "warm";
+      state.baseShadowEnabled = true;
+      state.baseShadowSizeText = size.id === "hero" ? "24" : "16";
+      state.baseShadowOpacityText = "0.22";
+      state.rimLightEnabled = variant === "solid";
+      state.rimLightColorInput = theme.end;
+      state.rimLightOpacityText = "0.22";
+      state.rimLightSizeText = size.id === "hero" ? "20" : "14";
+      state.edgeGradientEnabled = variant !== "ghost";
+      state.specularStrengthText = "0.58";
+      state.roughnessText = "0.18";
+      if (variant === "solid") {
+        state.useGradient = true;
+        state.gradAngleText = "120";
+        state.gradStartInput = theme.base;
+        state.gradMidEnabled = true;
+        state.gradMidInput = hexWithAlpha(theme.mid, 0.95);
+        state.gradEndInput = "#140b1f";
+        state.textInput = "#f8fafc";
+        state.borderInput = hexWithAlpha(theme.end, 0.32);
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 function makeVariantState(
@@ -514,12 +1009,14 @@ function makeVariantState(
     previewBgMode: "custom",
     previewBgInput: theme.canvas,
     shadowEnabled: true,
+    shadowStackEnabled: false,
     shXText: "0",
     shYText: size.shadowY,
     shBlurText: size.shadowBlur,
     shSpreadText: "0",
     shOpacityText: variant === "solid" ? "0.18" : "0.12",
     shColorInput: theme.shadow,
+    shadowTemp: "neutral",
     elevationPreset:
       mood.id === "cyber"
         ? "lifted"
@@ -527,6 +1024,7 @@ function makeVariantState(
           ? "raised"
           : "lifted",
     depthText: size.depth,
+    lightDirection: "top-left",
     topGradientEnabled: mood.topGradientEnabled && variant === "solid",
     topGradAngleText: "180",
     topGradStartInput: "#ffffff",
@@ -539,6 +1037,7 @@ function makeVariantState(
     glossEnabled: mood.glossEnabled,
     glossOpacityText: mood.glossEnabled ? "0.18" : "0.22",
     bevelEnabled: mood.bevelEnabled,
+    materialPreset: "custom",
     iconEmbossMode: mood.iconEmbossMode,
     textShadowEnabled: mood.textAnimation === "flicker" || mood.textAnimation === "glitch",
     tsXText: "0",
@@ -630,6 +1129,8 @@ function makeVariantState(
     state.disabledBorderInput = "transparent";
   }
 
+  applyMoodArtDirection(theme, mood, size, variant, state);
+
   return state;
 }
 
@@ -682,12 +1183,13 @@ function buildPreset(
     mood: mood.name,
     variant,
     size: size.name,
-    summary: `${VARIANT_LABELS[variant]} button with ${mood.name.toLowerCase()} motion on a ${theme.name.toLowerCase()} palette.`,
+    summary: `${VARIANT_LABELS[variant]} ${mood.summaryTone} button on a ${theme.name.toLowerCase()} palette.`,
     tags: [
       theme.id,
       theme.name.toLowerCase(),
       mood.id,
       mood.name.toLowerCase(),
+      ...mood.styleTags,
       variant,
       size.id,
       state.animation,
