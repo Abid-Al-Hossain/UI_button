@@ -11,7 +11,7 @@ This generator is designed for:
 - designers who want to explore button directions quickly
 - developers who want editable starting points instead of rebuilding button logic from scratch
 - freelancers and agencies who need fast button prototyping for client work
-- sellers who want a polished standalone UI tool before a larger component SaaS is launched
+- product creators who want a focused standalone button-building tool
 
 The workflow is simple:
 
@@ -410,7 +410,7 @@ Users can:
 - copy the generated code
 - export the component as a file
 
-The project still contains export generation logic with broader internal support, but the actual standalone package UI is currently centered on React / JSX delivery.
+The current interface is centered on React / JSX delivery, making it straightforward for users who want a practical code output they can paste into a project and continue editing.
 
 ## What makes this project strong for buyers
 
@@ -479,22 +479,18 @@ Available scripts:
 - `components/*`: shared controls, layout, export UI, theme helpers
 - `CHANGELOG.md`: release notes
 
-## Known boundaries
+## Current scope
 
-- The standalone package is focused on buttons only.
-- The 3D icon engine exists in the codebase but is not the primary active surface for this release.
-- Undo / redo is debounce-based, so extremely fast flip-flop changes may compress into fewer history steps.
-- Lint still reports a warning backlog in older editor and theme files.
-- This source should remain private while the product is being finalized for sale.
+This release is intentionally focused on one thing: a high-depth button generator.
 
-## Packaging notes
+That means the product is centered on:
 
-For buyer delivery:
+- editable button styling
+- preset-driven exploration
+- live previewing of states and motion
+- React / JSX export
 
-- do not include `node_modules`
-- do not include `.next`
-- do not include local build artifacts such as `*.tsbuildinfo`
-- keep the source package private until distribution terms are finalized
+It is not positioned as a full multi-component design system yet. That focus is part of the product value, because buyers get a specialized tool that goes deep on one component instead of a shallow all-in-one builder.
 
 ## Release notes
 
