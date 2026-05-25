@@ -632,7 +632,7 @@ export default function LivePreview(props: LivePreviewProps) {
     if (previewIsDisabled) return;
 
     const lastPressEffectAt = lastPressEffectAtRef.current[index] ?? 0;
-    if (Date.now() - lastPressEffectAt > 450) {
+    if (event.timeStamp - lastPressEffectAt > 450) {
       triggerVisualClickEffect(event, index);
     }
     lastPressEffectAtRef.current[index] = 0;
@@ -845,7 +845,7 @@ export default function LivePreview(props: LivePreviewProps) {
                           setActiveIndex(index);
                         }
                         if (!previewIsDisabled) {
-                          const pressAt = Date.now();
+                          const pressAt = event.timeStamp;
                           lastPressEffectAtRef.current[index] = pressAt;
                           triggerVisualClickEffect(event, index);
                           window.setTimeout(() => {

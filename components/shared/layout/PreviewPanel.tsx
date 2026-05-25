@@ -19,8 +19,8 @@ export function PreviewPanel({
   customColor?: string;
   setCustomColor?: (v: string) => void;
 }) {
-  const [localBgMode, setLocalBgMode] = useState<PreviewCanvasMode>("white");
-  const [localCustomColor, setLocalCustomColor] = useState("#ffffff");
+  const [localBgMode, setLocalBgMode] = useState<PreviewCanvasMode>("custom");
+  const [localCustomColor, setLocalCustomColor] = useState("#0b1220");
   const [isOpen, setIsOpen] = useState(false);
 
   const bgMode = controlledBgMode ?? localBgMode;

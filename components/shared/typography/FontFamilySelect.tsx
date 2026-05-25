@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { LabeledField } from "@/components/shared/layout/ui";
 import Select from "@/components/shared/input/Select";
 import { SegmentedControl } from "../input/SegmentedControl";
@@ -106,3 +106,4 @@ export default function FontFamilySelect(props: {
     </div>
   );
 }
+
