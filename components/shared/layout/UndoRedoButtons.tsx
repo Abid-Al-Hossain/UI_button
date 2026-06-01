@@ -47,6 +47,7 @@ export default function UndoRedoButtons({
         className={buttonBase}
         style={getButtonStyle(canUndo)}
         title="Undo (Ctrl+Z)"
+        aria-label="Undo"
       >
         <Undo2 size={18} />
       </button>
@@ -59,6 +60,7 @@ export default function UndoRedoButtons({
         className={buttonBase}
         style={getButtonStyle(canRedo)}
         title="Redo (Ctrl+Y)"
+        aria-label="Redo"
       >
         <Redo2 size={18} />
       </button>
@@ -71,6 +73,7 @@ export default function UndoRedoButtons({
           className={buttonBase}
           style={getButtonStyle(true)}
           title="Reset to default"
+          aria-label="Reset to default"
         >
           <RotateCcw size={18} />
         </button>

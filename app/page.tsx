@@ -1,6 +1,7 @@
 "use client";
 
 import React, {
+  type SetStateAction,
   useEffect,
   useRef,
   useState,
@@ -1530,12 +1531,12 @@ export default function ActionButtonPage() {
       ...s,
       previewBgInput: v instanceof Function ? v(s.previewBgInput) : v,
     }));
-  const setDownloadFormat = (v: any) =>
+  const setDownloadFormat = (v: SetStateAction<DownloadFormat>) =>
     updateState((s) => ({
       ...s,
       downloadFormat: v instanceof Function ? v(s.downloadFormat) : v,
     }));
-  const setDownloadName = (v: any) =>
+  const setDownloadName = (v: SetStateAction<string>) =>
     updateState((s) => ({
       ...s,
       downloadName: v instanceof Function ? v(s.downloadName) : v,
@@ -2598,7 +2599,7 @@ export default function ActionButtonPage() {
 
   const handleDownload = () => {
     const { filename, content } = exportCode;
-    const blob = new Blob([content], { type: "text/plain" });
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

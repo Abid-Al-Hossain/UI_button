@@ -54,9 +54,11 @@ export default function CodeBlock({
         data-testid="code-raw-value"
       />
       <motion.button
+        type="button"
         onClick={handleCopy}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        aria-label="Copy code"
         className="absolute top-3 right-3 p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all z-10 opacity-0 group-hover:opacity-100 focus:opacity-100"
         title="Copy code"
         data-audit="copy-code-button"

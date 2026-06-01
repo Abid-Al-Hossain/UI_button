@@ -18,6 +18,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "audit:parity": "node scripts/audit-button-parity.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
