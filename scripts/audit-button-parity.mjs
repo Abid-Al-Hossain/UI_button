@@ -34,6 +34,21 @@ check(
 );
 
 check(
+  "Export filename field feeds the exported component name",
+  exportUtils.includes("downloadName?: string") &&
+    exportUtils.includes("firstDefined(payload.componentName, payload.downloadName)") &&
+    page.includes("downloadName,"),
+  "The filename field must affect both the downloaded filename and generated component function name.",
+);
+
+check(
+  "Copied JSX is pasteable in Next App Router",
+  exportUtils.includes('return `"use client";') &&
+    !exportUtils.includes("const renderLabelContent = (text: string)"),
+  "The React-only JSX output should include a client directive and must not contain TS-only syntax when downloaded as .jsx.",
+);
+
+check(
   "Download helper uses the same payload builder",
   exportUtils.includes("const { content, filename } = buildExportPayload(payload)") &&
     exportUtils.includes('type: "text/plain;charset=utf-8"'),
@@ -67,9 +82,18 @@ check(
 
 check(
   "Copy button copies the rendered code prop",
-  codeBlock.includes("navigator.clipboard.writeText(code)") &&
+  codeBlock.includes("await navigator.clipboard.writeText(code)") &&
+    codeBlock.includes('document.execCommand("copy")') &&
     codeBlock.includes('data-testid="copy-code-button"'),
-  "Copy output must be the CodeBlock code prop, not a separately generated payload.",
+  "Copy output must be the CodeBlock code prop and should have a fallback when the Clipboard API is unavailable.",
+);
+
+check(
+  "Download button shows completion feedback",
+  panel.includes("const [isDownloading, setIsDownloading]") &&
+    panel.includes("handleDownloadWithFeedback") &&
+    panel.includes("isDownloading={isDownloading}"),
+  "ExportOptionsControl has a downloaded state, so the shared panel must actually drive it.",
 );
 
 check(

@@ -112,6 +112,7 @@ type NormalizedConfig = {
 
 export type ExportPayloadInput = {
   downloadFormat?: DownloadFormat;
+  downloadName?: string;
   componentName?: string;
   label?: string;
   loadingLabel?: string;
@@ -421,7 +422,10 @@ const normalizeDepthAnimationPreset = (value: unknown) => {
 };
 
 const normalizeConfig = (payload: ExportPayloadInput): NormalizedConfig => {
-  const componentName = toStringValue(payload.componentName, "action-button");
+  const componentName = toStringValue(
+    firstDefined(payload.componentName, payload.downloadName),
+    "action-button",
+  );
   const label = toStringValue(payload.label, "Confirm");
   const loadingLabel = toStringValue(payload.loadingLabel, "Loading...");
   const hoverEffect = toStringValue(payload.hoverEffect, "none");
@@ -712,7 +716,9 @@ const buildReactContent = (config: NormalizedConfig) => {
   const dotsJson = serializeForScript(SPARKLE_DOTS);
   const cssJson = serializeForScript(cssText);
 
-  return `import React, { useRef, useState } from "react";
+  return `"use client";
+
+import React, { useRef, useState } from "react";
 
 const CONFIG = ${configJson};
 const SPARKLE_DOTS = ${dotsJson};
@@ -995,7 +1001,7 @@ export default function ${componentName}({
     );
   };
 
-  const renderLabelContent = (text: string) => {
+  const renderLabelContent = (text) => {
     if (resolvedTextAnimation === "none" || resolvedTextAnimation === "shimmer") return text;
 
     return Array.from(text).map((char, index) => (
