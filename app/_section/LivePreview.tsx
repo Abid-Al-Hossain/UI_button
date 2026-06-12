@@ -291,7 +291,7 @@ const spawnBurst = (
     particle.style.height = height + "px";
     particle.style.borderRadius = profile.borderRadius;
     node.appendChild(particle);
-    window.setTimeout(() => particle.remove(), profile.durationMs);
+    setTimeout(() => particle.remove(), profile.durationMs);
   }
 };
 
@@ -621,7 +621,7 @@ export default function LivePreview(props: LivePreviewProps) {
       ripple.style.left = event.clientX - rect.left + "px";
       ripple.style.top = event.clientY - rect.top + "px";
       button.appendChild(ripple);
-      window.setTimeout(() => ripple.remove(), 700);
+      setTimeout(() => ripple.remove(), 700);
       return;
     }
 
@@ -848,7 +848,7 @@ export default function LivePreview(props: LivePreviewProps) {
                           const pressAt = event.timeStamp;
                           lastPressEffectAtRef.current[index] = pressAt;
                           triggerVisualClickEffect(event, index);
-                          window.setTimeout(() => {
+                          setTimeout(() => {
                             if (lastPressEffectAtRef.current[index] === pressAt) {
                               lastPressEffectAtRef.current[index] = 0;
                             }
