@@ -10,6 +10,7 @@ import React, {
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import AppShell from "@/components/shared/layout/AppShell";
+import ContrastGuard from "@/components/shared/color/ContrastGuard";
 import useHydrated from "@/components/hooks/useHydrated";
 import UndoRedoButtons from "@/components/shared/layout/UndoRedoButtons";
 import SectionSelector from "@/components/shared/layout/SectionSelector";
@@ -3480,6 +3481,7 @@ export default function ActionButtonPage() {
         controls={controls}
         preview={preview}
       />
+      <ContrastGuard />
     </AppShell>
   );
 }

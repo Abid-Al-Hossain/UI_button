@@ -76,6 +76,40 @@ function pickReadableThemeTone(primary: string, fallback: string, background: st
   return primaryContrast >= fallbackContrast ? primary : fallback;
 }
 
+// Parse #rrggbb, #rgb, or rgb()/rgba() into 0-255 channels + alpha.
+function parsePresetColor(input: string): { r: number; g: number; b: number; a: number } | null {
+  const s = (input || "").trim().toLowerCase();
+  let m = s.match(/^#([0-9a-f]{6})$/);
+  if (m) return { r: parseInt(m[1].slice(0, 2), 16), g: parseInt(m[1].slice(2, 4), 16), b: parseInt(m[1].slice(4, 6), 16), a: 1 };
+  m = s.match(/^#([0-9a-f]{3})$/);
+  if (m) return { r: parseInt(m[1][0] + m[1][0], 16), g: parseInt(m[1][1] + m[1][1], 16), b: parseInt(m[1][2] + m[1][2], 16), a: 1 };
+  m = s.match(/^rgba?\(([^)]+)\)$/);
+  if (m) { const p = m[1].split(",").map((x) => parseFloat(x)); return { r: p[0], g: p[1], b: p[2], a: p[3] === undefined ? 1 : p[3] }; }
+  return null;
+}
+
+// Flatten a possibly-translucent color over an opaque base, returning #rrggbb.
+// Mirrors how the renderer paints a translucent fill onto the canvas, so we can
+// check the label against the surface the user actually sees.
+function flattenOver(input: string, baseHex: string): string {
+  const c = parsePresetColor(input);
+  const base = parsePresetColor(baseHex) ?? { r: 255, g: 255, b: 255, a: 1 };
+  if (!c) return /^#[0-9a-f]{6}$/i.test(baseHex) ? baseHex : "#ffffff";
+  const a = c.a;
+  const hx = (n: number) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0");
+  return `#${hx(c.r * a + base.r * (1 - a))}${hx(c.g * a + base.g * (1 - a))}${hx(c.b * a + base.b * (1 - a))}`;
+}
+
+// Final WCAG-AA safety net: guarantee the label reads against the button's real
+// surface (translucent fills resolve onto the canvas). Fixes presets that pair a
+// light/translucent fill with light text (e.g. the slate/cobalt solid family).
+function enforceReadableLabel(state: ActionButtonState, theme: PresetTheme) {
+  const surface = flattenOver(state.bgInput, theme.canvas);
+  if ((contrastRatio(state.textInput, surface) ?? 0) < 4.5) {
+    state.textInput = pickReadableTextColor(surface);
+  }
+}
+
 export type ButtonPreset = {
   id: string;
   name: string;
@@ -1189,6 +1223,7 @@ function buildPreset(
   variant: ActionButtonState["variant"],
 ): ButtonPreset {
   const state = makeVariantState(theme, mood, size, variant);
+  enforceReadableLabel(state, theme);
   const id = `${theme.id}-${mood.id}-${variant}-${size.id}`;
   const name = `${theme.name} ${mood.name} ${VARIANT_LABELS[variant]} ${size.name}`;
   return {
