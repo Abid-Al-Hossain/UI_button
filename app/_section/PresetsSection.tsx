@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { type ButtonPreset, BUTTON_PRESET_COUNT } from "../_data/buttonPresets";
 import PresetButtonPreview from "./PresetButtonPreview";
-import { LabeledField, SectionCard, Segmented } from "./ui";
+import { LabeledField, SectionCard, FilterSelect } from "./ui";
 
 const PAGE_SIZE = 24;
 
@@ -134,7 +134,7 @@ export default function PresetsSection({
           </LabeledField>
 
           <LabeledField label="Variant">
-            <Segmented
+            <FilterSelect
               value={variantFilter}
               onChange={(value) => {
                 setPageDirection(0);
